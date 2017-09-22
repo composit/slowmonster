@@ -17,3 +17,7 @@ config :slowmonster, Slowmonster.Repo,
   database: "slowmonster_test",
   hostname: "db",
   pool: Ecto.Adapters.SQL.Sandbox
+
+# config/test.exs
+config :comeonin, :bcrypt_log_rounds, 4
+config :comeonin, :pbkdf2_rounds, 1
