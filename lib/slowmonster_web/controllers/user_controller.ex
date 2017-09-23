@@ -7,8 +7,8 @@ defmodule SlowmonsterWeb.UserController do
   action_fallback SlowmonsterWeb.FallbackController
 
   def index(conn, _params) do
-    user = Accounts.list_user()
-    render(conn, "index.json", user: user)
+    users = Accounts.list_users()
+    render(conn, "index.json", users: users)
   end
 
   def create(conn, %{"user" => user_params}) do

@@ -3,7 +3,7 @@ defmodule Slowmonster.AccountsTest do
 
   alias Slowmonster.Accounts
 
-  describe "user" do
+  describe "users" do
     alias Slowmonster.Accounts.User
 
     @valid_attrs %{email: "some email", password_hash: "some password_hash"}
@@ -19,9 +19,9 @@ defmodule Slowmonster.AccountsTest do
       user
     end
 
-    test "list_user/0 returns all user" do
+    test "list_users/0 returns all users" do
       user = user_fixture()
-      assert Accounts.list_user() == [user]
+      assert Accounts.list_users() == [user]
     end
 
     test "get_user!/1 returns the user with given id" do

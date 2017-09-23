@@ -4,7 +4,7 @@ defmodule Slowmonster.Accounts.User do
   alias Slowmonster.Accounts.User
 
 
-  schema "user" do
+  schema "users" do
     field :email, :string
     field :password_hash, :string
 

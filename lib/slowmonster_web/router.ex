@@ -20,7 +20,9 @@ defmodule SlowmonsterWeb.Router do
   end
 
   # Other scopes may use custom stacks.
-  # scope "/api", SlowmonsterWeb do
-  #   pipe_through :api
-  # end
+  scope "/api", SlowmonsterWeb do
+    pipe_through :api
+
+    resources "/users", UserController, only: [:create, :show]
+  end
 end
