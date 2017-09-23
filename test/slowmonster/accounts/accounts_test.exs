@@ -6,8 +6,8 @@ defmodule Slowmonster.AccountsTest do
   describe "users" do
     alias Slowmonster.Accounts.User
 
-    @valid_attrs %{email: "some email", password_hash: "some password_hash"}
-    @update_attrs %{email: "some updated email", password_hash: "some updated password_hash"}
+    @valid_attrs %{email: "some@email", password_hash: "some password_hash"}
+    @update_attrs %{email: "some-updated@email", password_hash: "some updated password_hash"}
     @invalid_attrs %{email: nil, password_hash: nil}
 
     def user_fixture(attrs \\ %{}) do
@@ -31,7 +31,7 @@ defmodule Slowmonster.AccountsTest do
 
     test "create_user/1 with valid data creates a user" do
       assert {:ok, %User{} = user} = Accounts.create_user(@valid_attrs)
-      assert user.email == "some email"
+      assert user.email == "some@email"
       assert user.password_hash == "some password_hash"
     end
 
@@ -39,11 +39,32 @@ defmodule Slowmonster.AccountsTest do
       assert {:error, %Ecto.Changeset{}} = Accounts.create_user(@invalid_attrs)
     end
 
+    test "create_user/1 with email too short is invalid" do
+      changeset = User.changeset(
+        %User{}, Map.put(@valid_attrs, :email, "")
+      )
+      refute changeset.valid?
+    end
+
+    test "create_user/1 with invalid email is invalid" do
+      changeset = User.changeset(
+        %User{}, Map.put(@valid_attrs, :email, "foo.com")
+      )
+      refute changeset.valid?
+    end
+
+    test "create_user/1 with password too short is invalid" do
+      changeset = User.registration_changeset(
+        %User{}, Map.put(@valid_attrs, :password, "12345")
+      )
+      refute changeset.valid?
+    end
+
     test "update_user/2 with valid data updates the user" do
       user = user_fixture()
       assert {:ok, user} = Accounts.update_user(user, @update_attrs)
       assert %User{} = user
-      assert user.email == "some updated email"
+      assert user.email == "some-updated@email"
       assert user.password_hash == "some updated password_hash"
     end
 

@@ -4,8 +4,8 @@ defmodule SlowmonsterWeb.UserControllerTest do
   alias Slowmonster.Accounts
   alias Slowmonster.Accounts.User
 
-  @create_attrs %{email: "some email", password_hash: "some password_hash"}
-  @update_attrs %{email: "some updated email", password_hash: "some updated password_hash"}
+  @create_attrs %{email: "some@email", password_hash: "some password_hash"}
+  @update_attrs %{email: "some-updated@email", password_hash: "some updated password_hash"}
   @invalid_attrs %{email: nil, password_hash: nil}
 
   def fixture(:user) do
@@ -25,7 +25,7 @@ defmodule SlowmonsterWeb.UserControllerTest do
       conn = get conn, user_path(conn, :show, id)
       assert json_response(conn, 200)["data"] == %{
         "id" => id,
-        "email" => "some email",
+        "email" => "some@email",
         "password_hash" => "some password_hash"}
     end
 
