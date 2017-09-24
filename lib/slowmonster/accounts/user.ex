@@ -3,7 +3,6 @@ defmodule Slowmonster.Accounts.User do
   import Ecto.Changeset
   alias Slowmonster.Accounts.User
 
-
   schema "users" do
     field :email, :string
     field :password_hash, :string

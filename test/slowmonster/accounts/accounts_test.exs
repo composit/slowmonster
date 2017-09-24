@@ -3,6 +3,27 @@ defmodule Slowmonster.AccountsTest do
 
   alias Slowmonster.Accounts
 
+  describe "sessions" do
+    alias Slowmonster.Accounts.Session
+
+    @invalid_attrs %{}
+
+    setup do
+      user = user_fixture(%{email: "foo@bar.com", password: "s3cr3t"})
+
+      {:ok, valid_attrs: %{user_id: user.id}}
+    end
+
+    test "create_session/1 with valid data creates a session", %{valid_attrs: valid_attrs} do
+      assert {:ok, %Session{} = session} = Accounts.create_session(valid_attrs)
+      assert session.token != nil
+    end
+
+    test "create_session/1 with invalid data returns error changeset" do
+      assert {:error, %Ecto.Changeset{}} = Accounts.create_session(@invalid_attrs)
+    end
+  end
+
   describe "users" do
     alias Slowmonster.Accounts.User
 
@@ -29,6 +50,11 @@ defmodule Slowmonster.AccountsTest do
       assert Accounts.get_user!(user.id) == user
     end
 
+    test "get_user_by_email/1 returns the user with the given email" do
+      user = user_fixture()
+      assert Accounts.get_user_by_email(user.email) == user
+    end
+
     test "create_user/1 with valid data creates a user" do
       assert {:ok, %User{} = user} = Accounts.create_user(@valid_attrs)
       assert user.email == "some@email"
@@ -39,25 +65,19 @@ defmodule Slowmonster.AccountsTest do
       assert {:error, %Ecto.Changeset{}} = Accounts.create_user(@invalid_attrs)
     end
 
-    test "create_user/1 with email too short is invalid" do
-      changeset = User.changeset(
-        %User{}, Map.put(@valid_attrs, :email, "")
-      )
-      refute changeset.valid?
+    test "create_user/1 with email too short returns error changeset" do
+      attrs = Map.put(@valid_attrs, :email, "")
+      assert {:error, %Ecto.Changeset{}} = Accounts.create_user(attrs)
     end
 
-    test "create_user/1 with invalid email is invalid" do
-      changeset = User.changeset(
-        %User{}, Map.put(@valid_attrs, :email, "foo.com")
-      )
-      refute changeset.valid?
+    test "create_user/1 with invalid email returns error changeset" do
+      attrs = Map.put(@valid_attrs, :email, "foo.com")
+      assert {:error, %Ecto.Changeset{}} = Accounts.create_user(attrs)
     end
 
-    test "create_user/1 with password too short is invalid" do
-      changeset = User.registration_changeset(
-        %User{}, Map.put(@valid_attrs, :password, "12345")
-      )
-      refute changeset.valid?
+    test "create_user/1 with password too short returns error changeset" do
+      attrs = Map.put(@valid_attrs, :password, "12345")
+      assert {:error, %Ecto.Changeset{}} = Accounts.create_user(attrs)
     end
 
     test "update_user/2 with valid data updates the user" do

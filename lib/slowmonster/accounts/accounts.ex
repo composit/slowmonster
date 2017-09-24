@@ -7,6 +7,7 @@ defmodule Slowmonster.Accounts do
   alias Slowmonster.Repo
 
   alias Slowmonster.Accounts.User
+  alias Slowmonster.Accounts.Session
 
   @doc """
   Returns the list of users.
@@ -38,6 +39,17 @@ defmodule Slowmonster.Accounts do
   def get_user!(id), do: Repo.get!(User, id)
 
   @doc """
+  Gets a single user by email.
+
+  ## Examples
+
+      iex> get_user_by_email("foo@bar.com")
+      {:ok, %User{}}
+
+  """
+  def get_user_by_email(email), do: Repo.get_by(User, email: email)
+
+  @doc """
   Creates a user.
 
   ## Examples
@@ -51,7 +63,7 @@ defmodule Slowmonster.Accounts do
   """
   def create_user(attrs \\ %{}) do
     %User{}
-    |> User.changeset(attrs)
+    |> User.registration_changeset(attrs)
     |> Repo.insert()
   end
 
@@ -100,5 +112,23 @@ defmodule Slowmonster.Accounts do
   """
   def change_user(%User{} = user) do
     User.changeset(user, %{})
+  end
+
+  @doc """
+  Creates a session.
+
+  ## Examples
+
+      iex> create_session(%{field: value})
+      {:ok, %Session{}}
+
+      iex> create_session(%{field: bad_value})
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def create_session(attrs \\ %{}) do
+    %Session{}
+    |> Session.registration_changeset(attrs)
+    |> Repo.insert()
   end
 end

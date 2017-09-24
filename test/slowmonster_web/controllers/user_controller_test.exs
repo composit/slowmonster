@@ -2,10 +2,9 @@ defmodule SlowmonsterWeb.UserControllerTest do
   use SlowmonsterWeb.ConnCase
 
   alias Slowmonster.Accounts
-  alias Slowmonster.Accounts.User
 
   @create_attrs %{email: "some@email", password_hash: "some password_hash"}
-  @update_attrs %{email: "some-updated@email", password_hash: "some updated password_hash"}
+  #@update_attrs %{email: "some-updated@email", password_hash: "some updated password_hash"}
   @invalid_attrs %{email: nil, password_hash: nil}
 
   def fixture(:user) do
@@ -25,8 +24,7 @@ defmodule SlowmonsterWeb.UserControllerTest do
       conn = get conn, user_path(conn, :show, id)
       assert json_response(conn, 200)["data"] == %{
         "id" => id,
-        "email" => "some@email",
-        "password_hash" => "some password_hash"}
+        "email" => "some@email"}
     end
 
     test "renders errors when data is invalid", %{conn: conn} do
@@ -66,8 +64,8 @@ defmodule SlowmonsterWeb.UserControllerTest do
   #  end
   #end
 
-  defp create_user(_) do
-    user = fixture(:user)
-    {:ok, user: user}
-  end
+  #defp create_user(_) do
+  #  user = fixture(:user)
+  #  {:ok, user: user}
+  #end
 end

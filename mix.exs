@@ -41,7 +41,9 @@ defmodule Slowmonster.Mixfile do
       {:phoenix_live_reload, "~> 1.0", only: :dev},
       {:gettext, "~> 0.11"},
       {:comeonin, "~> 4.0.3"},
-      {:cowboy, "~> 1.0"}
+      {:bcrypt_elixir, "~> 1.0.4"},
+      {:cowboy, "~> 1.0"},
+      {:secure_random, "~> 0.5"}
     ]
   end
 
