@@ -12,4 +12,8 @@ defmodule SlowmonsterWeb.SessionView do
   def render("error.json", _anything) do
     %{errors: "failed to authenticate"}
   end
+
+  def render("test.json", %{user: user}) do
+    %{email: user.email, success: true}
+  end
 end

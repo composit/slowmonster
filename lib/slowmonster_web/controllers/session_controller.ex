@@ -1,4 +1,3 @@
-require IEx
 defmodule SlowmonsterWeb.SessionController do
   use SlowmonsterWeb, :controller
 
@@ -6,6 +5,8 @@ defmodule SlowmonsterWeb.SessionController do
 
   alias Slowmonster.Accounts
   alias Slowmonster.Accounts.Session
+
+  plug SlowmonsterWeb.Authentication when action in [:index]
 
   def create(conn, %{"user" => user_params}) do
     user = Accounts.get_user_by_email(user_params["email"])
@@ -25,6 +26,15 @@ defmodule SlowmonsterWeb.SessionController do
         conn
         |> put_status(:unauthorized)
         |> render("error.json", user_params)
+    end
+  end
+
+  # temporary for testing sessions, remove route when done
+  def index(conn, _params) do
+    if user = conn.assigns.current_user do
+      render(conn, "test.json", user: user)
+    else
+      render(conn, "error.json", "")
     end
   end
 end

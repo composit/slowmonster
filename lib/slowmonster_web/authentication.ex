@@ -1,8 +1,9 @@
 defmodule SlowmonsterWeb.Authentication do
   import Plug.Conn
+  import Ecto.Query, only: [from: 2]
+
   alias Slowmonster.Accounts
   alias Slowmonster.Accounts.{User, Session}
-  import Ecto.Query, only: [from: 2]
 
   def init(options), do: options
 
@@ -37,6 +38,8 @@ defmodule SlowmonsterWeb.Authentication do
   end
 
   defp auth_error!(conn) do
-    conn |> put_status(:unauthorized) |> halt()
+    conn
+    |> send_resp(:unauthorized, "")
+    |> halt()
   end
 end
