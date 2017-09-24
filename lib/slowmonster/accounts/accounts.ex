@@ -131,4 +131,8 @@ defmodule Slowmonster.Accounts do
     |> Session.registration_changeset(attrs)
     |> Repo.insert()
   end
+
+  def find_session_by_token(token) do
+    Repo.one(from s in Session, where: s.token == ^token)
+  end
 end

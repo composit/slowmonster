@@ -1,3 +1,4 @@
+require IEx
 defmodule SlowmonsterWeb.SessionController do
   use SlowmonsterWeb, :controller
 
@@ -7,9 +8,9 @@ defmodule SlowmonsterWeb.SessionController do
   alias Slowmonster.Accounts.Session
 
   def create(conn, %{"user" => user_params}) do
-    user = Accounts.get_user_by_email(user_params[:email])
+    user = Accounts.get_user_by_email(user_params["email"])
     cond do
-      user && checkpw(user_params[:password], user.password_hash) ->
+      user && checkpw(user_params["password"], user.password_hash) ->
         {:ok, %Session{} = session} = Accounts.create_session(%{user_id: user.id})
         conn
         |> put_status(:created)

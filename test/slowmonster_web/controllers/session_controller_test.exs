@@ -2,16 +2,16 @@ defmodule SlowmonsterWeb.SessionControllerTest do
   use SlowmonsterWeb.ConnCase
 
   alias Slowmonster.Accounts
-  alias Slowmonster.Accounts.Session
-  alias Slowmonster.Accounts.User
+
   @valid_attrs %{email: "foo@bar.com", password: "s3cr3t"}
 
-  def fixture(:session) do
-    {:ok, session} = Accounts.create_session(@valid_attrs)
-    session
+  def fixture(:user) do
+    {:ok, user} = Accounts.create_user(@valid_attrs)
+    user
   end
 
   setup %{conn: conn} do
+    _ = fixture(:user)
     {:ok, conn: put_req_header(conn, "accept", "application/json")}
   end
 
@@ -20,7 +20,7 @@ defmodule SlowmonsterWeb.SessionControllerTest do
       conn = post conn, session_path(conn, :create), user: @valid_attrs
       assert %{"token" => token} = json_response(conn, 201)["data"]
 
-      assert Repo.get_by(Session, token: token)
+      assert Accounts.find_session_by_token(token)
     end
 
     test "does not create resource and renders errors when password is invalid", %{conn: conn} do

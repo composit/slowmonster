@@ -15,7 +15,7 @@ defmodule Slowmonster.Accounts.User do
   def changeset(%User{} = user, attrs) do
     user
     |> cast(attrs, [:email, :password_hash])
-    |> validate_required([:email, :password_hash])
+    |> validate_required([:email])
     |> validate_length(:email, min: 1, max: 255)
     |> validate_format(:email, ~r/@/)
   end
