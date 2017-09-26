@@ -9,7 +9,7 @@ defmodule SlowmonsterWeb.SessionController do
   plug SlowmonsterWeb.Authentication when action in [:index]
 
   def create(conn, %{"user" => user_params}) do
-    user = Accounts.get_user_by_email(user_params["email"])
+    user = Accounts.get_user_by_username(user_params["username"])
     cond do
       user && checkpw(user_params["password"], user.password_hash) ->
         {:ok, %Session{} = session} = Accounts.create_session(%{user_id: user.id})

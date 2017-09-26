@@ -12,7 +12,7 @@ defmodule SlowmonsterWeb.AuthenticationTest do
   end
 
   test "finds the user by token", %{conn: conn} do
-    {:ok, user} = Accounts.create_user(%{email: "foo@bar.com", password: "s3cr3t"})
+    {:ok, user} = Accounts.create_user(%{username: "usey", password: "s3cr3t"})
     {:ok, session} = Accounts.create_session(%{user_id: user.id})
 
     conn = conn

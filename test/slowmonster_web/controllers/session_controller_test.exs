@@ -3,7 +3,7 @@ defmodule SlowmonsterWeb.SessionControllerTest do
 
   alias Slowmonster.Accounts
 
-  @valid_attrs %{email: "foo@bar.com", password: "s3cr3t"}
+  @valid_attrs %{username: "foo@bar.com", password: "s3cr3t"}
 
   def fixture(:user) do
     {:ok, user} = Accounts.create_user(@valid_attrs)
@@ -28,8 +28,8 @@ defmodule SlowmonsterWeb.SessionControllerTest do
       assert json_response(conn, 401)["errors"] != %{}
     end
 
-    test "does not create resource and renders errors when email is invalid", %{conn: conn} do
-      conn = post conn, session_path(conn, :create), user: Map.put(@valid_attrs, :email, "not@found.com")
+    test "does not create resource and renders errors when username is invalid", %{conn: conn} do
+      conn = post conn, session_path(conn, :create), user: Map.put(@valid_attrs, :username, "notright")
       assert json_response(conn, 401)["errors"] != %{}
     end
   end

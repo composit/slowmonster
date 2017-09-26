@@ -14,6 +14,6 @@ defmodule SlowmonsterWeb.SessionView do
   end
 
   def render("test.json", %{user: user}) do
-    %{email: user.email, success: true}
+    %{username: user.username, success: true}
   end
 end
