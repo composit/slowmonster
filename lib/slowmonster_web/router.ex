@@ -25,5 +25,6 @@ defmodule SlowmonsterWeb.Router do
 
     resources "/users", UserController, only: [:create, :show]
     resources "/sessions", SessionController, only: [:create, :index]
+    resources "/tickets", TicketController, only: [:index, :create, :show, :update, :delete]
   end
 end
