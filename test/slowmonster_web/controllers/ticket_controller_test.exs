@@ -1,6 +1,8 @@
 defmodule SlowmonsterWeb.TicketControllerTest do
   use SlowmonsterWeb.ConnCase
 
+  import Slowmonster.Factory
+
   alias Slowmonster.Tickets
   alias Slowmonster.Tickets.Ticket
 
@@ -17,11 +19,23 @@ defmodule SlowmonsterWeb.TicketControllerTest do
     {:ok, conn: put_req_header(conn, "accept", "application/json")}
   end
 
-  describe "index" do
-    test "lists all tickets", %{conn: conn} do
+  describe "index with a logged in user" do
+    setup [:log_user_in]
+
+    test "lists all tickets belonging to that user", %{conn: conn, user: user} do
       conn = get conn, ticket_path(conn, :index)
       assert json_response(conn, 200)["data"] == []
     end
+
+    test "does not list tickets not belonging to that user", %{conn: conn} do
+      conn = get conn, ticket_path(conn, :index)
+      assert json_response(conn, 200)["data"] == []
+    end
+  end
+
+  test "index without a logged in user returns a 401", %{conn: conn} do
+    conn = get conn, ticket_path(conn, :index)
+    assert json_response(conn, 401)
   end
 
   describe "create ticket" do
@@ -78,6 +92,9 @@ defmodule SlowmonsterWeb.TicketControllerTest do
     {:ok, ticket: ticket}
   end
 
-  defp log_user_in(context) do
+  defp log_user_in %{conn: conn} do
+    user = build(:user)
+    conn = assign(conn, :current_user, user)
+    {:ok, user: user}
   end
 end

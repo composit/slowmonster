@@ -1,9 +1,7 @@
 defmodule SlowmonsterWeb.Authentication do
   import Plug.Conn
-  import Ecto.Query, only: [from: 2]
 
   alias Slowmonster.Accounts
-  alias Slowmonster.Accounts.{User, Session}
 
   def init(options), do: options
 

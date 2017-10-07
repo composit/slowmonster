@@ -9,16 +9,18 @@ defmodule Slowmonster.Tickets do
   alias Slowmonster.Tickets.Ticket
 
   @doc """
-  Returns the list of tickets.
+  Returns the list of tickets for a user.
 
   ## Examples
 
-      iex> list_tickets()
+      iex> list_tickets_by_user(123)
       [%Ticket{}, ...]
 
   """
-  def list_tickets do
-    Repo.all(Ticket)
+  def list_tickets_for_user(user_id) do
+    Ticket
+    |> where(user_id: ^user_id)
+    |> Repo.all
   end
 
   @doc """
@@ -28,14 +30,14 @@ defmodule Slowmonster.Tickets do
 
   ## Examples
 
-      iex> get_ticket!(123)
+      iex> get_ticket!(789, 123)
       %Ticket{}
 
       iex> get_ticket!(456)
       ** (Ecto.NoResultsError)
 
   """
-  def get_ticket!(id), do: Repo.get!(Ticket, id)
+  def get_ticket!(user_id, id), do: Repo.get_by!(Ticket, id: id, user_id: user_id)
 
   @doc """
   Creates a ticket.

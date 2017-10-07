@@ -33,16 +33,17 @@ defmodule Slowmonster.Mixfile do
   # Type `mix help deps` for examples and options.
   defp deps do
     [
+      {:bcrypt_elixir, "~> 1.0.4"},
+      {:comeonin, "~> 4.0.3"},
+      {:cowboy, "~> 1.0"},
+      {:ex_machina, "~> 2.1", only: :test},
+      {:gettext, "~> 0.11"},
       {:phoenix, "~> 1.3.0"},
       {:phoenix_pubsub, "~> 1.0"},
       {:phoenix_ecto, "~> 3.2"},
-      {:postgrex, ">= 0.0.0"},
       {:phoenix_html, "~> 2.10"},
       {:phoenix_live_reload, "~> 1.0", only: :dev},
-      {:gettext, "~> 0.11"},
-      {:comeonin, "~> 4.0.3"},
-      {:bcrypt_elixir, "~> 1.0.4"},
-      {:cowboy, "~> 1.0"},
+      {:postgrex, ">= 0.0.0"},
       {:secure_random, "~> 0.5"}
     ]
   end
