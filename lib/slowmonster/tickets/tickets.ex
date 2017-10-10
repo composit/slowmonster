@@ -53,7 +53,7 @@ defmodule Slowmonster.Tickets do
   """
   def create_ticket(attrs \\ %{}) do
     %Ticket{}
-    |> Ticket.changeset(attrs)
+    |> Ticket.create_changeset(attrs)
     |> Repo.insert()
   end
 

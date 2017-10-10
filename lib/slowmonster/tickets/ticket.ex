@@ -18,6 +18,13 @@ defmodule Slowmonster.Tickets.Ticket do
   def changeset(%Ticket{} = ticket, attrs) do
     ticket
     |> cast(attrs, [:content, :priority, :closed_at, :days_in_week])
-    |> validate_required([:content, :priority, :closed_at, :days_in_week])
+    |> validate_required([:content, :priority, :days_in_week, :user_id])
+  end
+
+  @doc false
+  def create_changeset(%Ticket{} = ticket, attrs) do
+    ticket
+    |> cast(attrs, [:content, :priority, :closed_at, :days_in_week, :user_id])
+    |> validate_required([:content, :priority, :days_in_week, :user_id])
   end
 end

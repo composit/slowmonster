@@ -3,17 +3,7 @@ defmodule SlowmonsterWeb.TicketControllerTest do
 
   import Slowmonster.Factory
 
-  alias Slowmonster.Tickets
   alias Slowmonster.Tickets.Ticket
-
-  @create_attrs %{closed_at: "2010-04-17T14:00:00.000000Z", content: "some content", days_in_week: 120.5, priority: 42}
-  @update_attrs %{closed_at: "2011-05-18T15:01:01.000000Z", content: "some updated content", days_in_week: 456.7, priority: 43}
-  @invalid_attrs %{closed_at: nil, content: nil, days_in_week: nil, priority: nil}
-
-  def fixture(:ticket) do
-    {:ok, ticket} = Tickets.create_ticket(@create_attrs)
-    ticket
-  end
 
   setup %{conn: conn} do
     {:ok, conn: put_req_header(conn, "accept", "application/json")}
@@ -23,11 +13,13 @@ defmodule SlowmonsterWeb.TicketControllerTest do
     setup [:log_user_in]
 
     test "lists all tickets belonging to that user", %{conn: conn, user: user} do
+      insert_list(3, :ticket, %{user_id: user.id})
       conn = get conn, ticket_path(conn, :index)
-      assert json_response(conn, 200)["data"] == []
+      assert Enum.count(json_response(conn, 200)["data"]) == 3
     end
 
     test "does not list tickets not belonging to that user", %{conn: conn} do
+      insert(:ticket)
       conn = get conn, ticket_path(conn, :index)
       assert json_response(conn, 200)["data"] == []
     end
@@ -35,66 +27,102 @@ defmodule SlowmonsterWeb.TicketControllerTest do
 
   test "index without a logged in user returns a 401", %{conn: conn} do
     conn = get conn, ticket_path(conn, :index)
-    assert json_response(conn, 401)
+    assert response(conn, 401)
   end
 
-  describe "create ticket" do
-    test "renders ticket when logged in and the data is valid", %{conn: conn} do
-      conn = post conn, ticket_path(conn, :create), ticket: @create_attrs
-      assert %{"id" => id} = json_response(conn, 201)["data"]
+  describe "create ticket with logged in user" do
+    setup [:log_user_in]
 
-      conn = get conn, ticket_path(conn, :show, id)
-      assert json_response(conn, 200)["data"]["id"] == id
+    test "renders ticket when logged in and the data is valid", %{conn: conn} do
+      post_conn = post conn, ticket_path(conn, :create), ticket: params_for(:ticket)
+      assert %{"id" => id} = json_response(post_conn, 201)["data"]
+
+      get_conn = get conn, ticket_path(conn, :show, id)
+      assert json_response(get_conn, 200)["data"]["id"] == id
+    end
+
+    test "sets the current user id", %{conn: conn} do
+      post_conn = post conn, ticket_path(conn, :create), ticket: params_for(:ticket)
+      assert %{"id" => id} = json_response(post_conn, 201)["data"]
+
+      get_conn = get conn, ticket_path(conn, :show, id)
+      assert json_response(get_conn, 200)["data"]["id"] == id
     end
 
     test "renders errors when logged in and the data is invalid", %{conn: conn} do
-      conn = post conn, ticket_path(conn, :create), ticket: @invalid_attrs
+      conn = post conn, ticket_path(conn, :create), ticket: %{}
       assert json_response(conn, 422)["errors"] != %{}
     end
   end
 
-  describe "update ticket" do
-    setup [:create_ticket]
+  test "create ticket without a logged in user returns a 401", %{conn: conn} do
+    conn = post conn, ticket_path(conn, :create), ticket: params_for(:ticket)
+    assert response(conn, 401)
+  end
+
+  describe "update ticket with logged in user" do
+    setup [:log_user_in, :create_ticket]
 
     test "renders ticket when data is valid", %{conn: conn, ticket: %Ticket{id: id} = ticket} do
-      conn = put conn, ticket_path(conn, :update, ticket), ticket: @update_attrs
-      assert %{"id" => ^id} = json_response(conn, 200)["data"]
+      put_conn = put conn, ticket_path(conn, :update, ticket), ticket: %{closed_at: "2011-05-18T15:01:01.000000Z"}
+      assert %{"id" => ^id} = json_response(put_conn, 200)["data"]
 
-      conn = get conn, ticket_path(conn, :show, id)
-      assert json_response(conn, 200)["data"] == %{
-        "id" => id,
-        "closed_at" => "2011-05-18T15:01:01.000000Z",
-        "content" => "some updated content",
-        "days_in_week" => 456.7,
-        "priority" => 43}
+      get_conn = get conn, ticket_path(conn, :show, id)
+      assert json_response(get_conn, 200)["data"]["id"] == id
+      assert json_response(get_conn, 200)["data"]["closed_at"] == "2011-05-18T15:01:01.000000Z"
     end
 
     test "renders errors when data is invalid", %{conn: conn, ticket: ticket} do
-      conn = put conn, ticket_path(conn, :update, ticket), ticket: @invalid_attrs
+      conn = put conn, ticket_path(conn, :update, ticket), ticket: %{content: ""}
       assert json_response(conn, 422)["errors"] != %{}
     end
   end
 
-  describe "delete ticket" do
-    setup [:create_ticket]
+  test "update ticket without a logged in user returns a 401", %{conn: conn} do
+    ticket = insert(:ticket)
+    conn = put conn, ticket_path(conn, :update, ticket), ticket: %{}
+    assert response(conn, 401)
+  end
+
+  describe "delete ticket with logged in user" do
+    setup [:log_user_in, :create_ticket]
 
     test "deletes chosen ticket", %{conn: conn, ticket: ticket} do
-      conn = delete conn, ticket_path(conn, :delete, ticket)
-      assert response(conn, 204)
+      delete_conn = delete conn, ticket_path(conn, :delete, ticket)
+      assert response(delete_conn, 204)
+
       assert_error_sent 404, fn ->
         get conn, ticket_path(conn, :show, ticket)
       end
     end
+
+    test "does not delete a ticket that does not belong to the user", %{conn: conn} do
+      other_ticket = insert(:ticket)
+      assert_error_sent 404, fn ->
+        delete conn, ticket_path(conn, :delete, other_ticket)
+      end
+    end
   end
 
-  defp create_ticket(_) do
-    ticket = fixture(:ticket)
+  test "delete ticket without a logged in user returns a 401", %{conn: conn} do
+    ticket = insert(:ticket)
+    conn = delete conn, ticket_path(conn, :delete, ticket)
+    assert response(conn, 401)
+  end
+
+  defp create_ticket %{user: user} do
+    ticket = insert(:ticket, user_id: user.id)
     {:ok, ticket: ticket}
   end
 
   defp log_user_in %{conn: conn} do
-    user = build(:user)
-    conn = assign(conn, :current_user, user)
-    {:ok, user: user}
+    user = insert(:user)
+    session = insert(:session, %{user_id: user.id})
+
+    conn = conn
+    |> put_req_header("accept", "application/json")
+    |> put_req_header("authorization", "Token token=\"#{session.token}\"")
+
+    {:ok, conn: conn, user: user}
   end
 end

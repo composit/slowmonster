@@ -1,6 +1,8 @@
 defmodule Slowmonster.AccountsTest do
   use Slowmonster.DataCase
 
+  import Slowmonster.Factory
+
   alias Slowmonster.Accounts
 
   describe "sessions" do
@@ -27,14 +29,10 @@ defmodule Slowmonster.AccountsTest do
   describe "users" do
     alias Slowmonster.Accounts.User
 
-    @valid_attrs %{username: "usey", password_hash: "some password_hash"}
-    @update_attrs %{username: "updatey", password_hash: "some updated password_hash"}
-    @invalid_attrs %{username: nil, password_hash: nil}
-
     def user_fixture(attrs \\ %{}) do
       {:ok, user} =
         attrs
-        |> Enum.into(@valid_attrs)
+        |> Enum.into(params_for(:user))
         |> Accounts.create_user()
 
       user
@@ -56,36 +54,33 @@ defmodule Slowmonster.AccountsTest do
     end
 
     test "create_user/1 with valid data creates a user" do
-      assert {:ok, %User{} = user} = Accounts.create_user(@valid_attrs)
-      assert user.username == "usey"
-      assert user.password_hash == "some password_hash"
+      assert {:ok, %User{} = _} = Accounts.create_user(params_for(:user))
     end
 
     test "create_user/1 with invalid data returns error changeset" do
-      assert {:error, %Ecto.Changeset{}} = Accounts.create_user(@invalid_attrs)
+      assert {:error, %Ecto.Changeset{}} = Accounts.create_user(%{})
     end
 
     test "create_user/1 with username too short returns error changeset" do
-      attrs = Map.put(@valid_attrs, :username, "")
+      attrs = Map.put(params_for(:user), :username, "")
       assert {:error, %Ecto.Changeset{}} = Accounts.create_user(attrs)
     end
 
     test "create_user/1 with password too short returns error changeset" do
-      attrs = Map.put(@valid_attrs, :password, "12345")
+      attrs = Map.put(params_for(:user), :password, "12345")
       assert {:error, %Ecto.Changeset{}} = Accounts.create_user(attrs)
     end
 
     test "update_user/2 with valid data updates the user" do
       user = user_fixture()
-      assert {:ok, user} = Accounts.update_user(user, @update_attrs)
+      assert {:ok, user} = Accounts.update_user(user, %{username: "updatey"})
       assert %User{} = user
       assert user.username == "updatey"
-      assert user.password_hash == "some updated password_hash"
     end
 
     test "update_user/2 with invalid data returns error changeset" do
       user = user_fixture()
-      assert {:error, %Ecto.Changeset{}} = Accounts.update_user(user, @invalid_attrs)
+      assert {:error, %Ecto.Changeset{}} = Accounts.update_user(user, %{username: ""})
       assert user == Accounts.get_user!(user.id)
     end
 
