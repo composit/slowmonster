@@ -12,7 +12,7 @@ defmodule SlowmonsterWeb.TicketView do
 
   def render("ticket.json", %{ticket: ticket}) do
     %{id: ticket.id,
-      content: ticket.content,
+      description: ticket.description,
       priority: ticket.priority,
       closed_at: ticket.closed_at,
       days_in_week: ticket.days_in_week}

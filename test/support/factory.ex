@@ -10,7 +10,7 @@ defmodule Slowmonster.Factory do
 
   def ticket_factory do
     %Slowmonster.Tickets.Ticket{
-      content: "abc",
+      description: "abc",
       priority: 123,
       days_in_week: 123,
       user_id: insert(:user).id

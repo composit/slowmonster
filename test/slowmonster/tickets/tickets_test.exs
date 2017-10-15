@@ -51,7 +51,7 @@ defmodule Slowmonster.TicketsTest do
     test "update_ticket/2 with invalid data returns error changeset" do
       user = insert(:user)
       ticket = insert(:ticket, %{user_id: user.id})
-      assert {:error, %Ecto.Changeset{}} = Tickets.update_ticket(ticket, %{content: ""})
+      assert {:error, %Ecto.Changeset{}} = Tickets.update_ticket(ticket, %{description: ""})
       assert ticket == Tickets.get_ticket!(user.id, ticket.id)
     end
 

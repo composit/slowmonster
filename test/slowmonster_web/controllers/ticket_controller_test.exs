@@ -73,7 +73,7 @@ defmodule SlowmonsterWeb.TicketControllerTest do
   #  end
   #
   #  test "renders errors when data is invalid", %{conn: conn, ticket: ticket} do
-  #    conn = put conn, ticket_path(conn, :update, ticket), ticket: %{content: ""}
+  #    conn = put conn, ticket_path(conn, :update, ticket), ticket: %{description: ""}
   #    assert json_response(conn, 422)["errors"] != %{}
   #  end
   #end
