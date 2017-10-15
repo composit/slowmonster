@@ -67,4 +67,51 @@ defmodule Slowmonster.TicketsTest do
       assert %Ecto.Changeset{} = Tickets.change_ticket(ticket)
     end
   end
+
+  describe "times" do
+    alias Slowmonster.Tickets.Time
+
+    test "list_times/0 returns all times" do
+      time = insert(:time)
+      assert Tickets.list_times() == [time]
+    end
+
+    test "get_time!/1 returns the time with given id" do
+      time = insert(:time)
+      assert Tickets.get_time!(time.id) == time
+    end
+
+    test "create_time/1 with valid data creates a time" do
+      assert {:ok, %Time{} = time} = Tickets.create_time(params_for(:time))
+      assert time.ticket_id != nil
+    end
+
+    test "create_time/1 with invalid data returns error changeset" do
+      assert {:error, %Ecto.Changeset{}} = Tickets.create_time(%{})
+    end
+
+    test "update_time/2 with valid data updates the time" do
+      time = insert(:time)
+      assert {:ok, time} = Tickets.update_time(time, %{ended_at: "2011-05-18T15:01:01.000000Z"})
+      assert %Time{} = time
+      assert time.ended_at == DateTime.from_naive!(~N[2011-05-18 15:01:01.000000Z], "Etc/UTC")
+    end
+
+    test "update_time/2 with invalid data returns error changeset" do
+      time = insert(:time)
+      assert {:error, %Ecto.Changeset{}} = Tickets.update_time(time, %{started_at: "abc"})
+      assert time == Tickets.get_time!(time.id)
+    end
+
+    test "delete_time/1 deletes the time" do
+      time = insert(:time)
+      assert {:ok, %Time{}} = Tickets.delete_time(time)
+      assert_raise Ecto.NoResultsError, fn -> Tickets.get_time!(time.id) end
+    end
+
+    test "change_time/1 returns a time changeset" do
+      time = insert(:time)
+      assert %Ecto.Changeset{} = Tickets.change_time(time)
+    end
+  end
 end

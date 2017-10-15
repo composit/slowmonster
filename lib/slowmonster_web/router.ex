@@ -24,7 +24,8 @@ defmodule SlowmonsterWeb.Router do
     pipe_through :api
 
     resources "/users", UserController, only: [:create, :show]
-    resources "/sessions", SessionController, only: [:create, :index]
-    resources "/tickets", TicketController, only: [:index, :create, :show, :update, :delete]
+    resources "/sessions", SessionController, only: [:create]
+    resources "/tickets", TicketController, only: [:create, :show]
+    resources "/times", TimeController, only: [:create, :show]
   end
 end
