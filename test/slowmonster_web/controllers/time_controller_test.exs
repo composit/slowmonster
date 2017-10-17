@@ -4,11 +4,7 @@ defmodule SlowmonsterWeb.TimeControllerTest do
   import Slowmonster.Factory
 
   alias Slowmonster.Tickets
-
-  def fixture(:time) do
-    {:ok, time} = Tickets.create_time(params_for(:time))
-    time
-  end
+  alias Slowmonster.Tickets.Time
 
   setup %{conn: conn} do
     {:ok, conn: put_req_header(conn, "accept", "application/json")}
@@ -50,22 +46,29 @@ defmodule SlowmonsterWeb.TimeControllerTest do
     assert response(conn, 401)
   end
 
-  #describe "update time" do
-  #  setup [:create_time]
-  #
-  #  test "renders time when data is valid", %{conn: conn, time: %Time{id: id} = time} do
-  #    conn = put conn, time_path(conn, :update, time), time: %{ended_at: "2011-05-18T15:01:01.000000Z"}
-  #    assert %{"id" => ^id} = json_response(conn, 200)["data"]
-  #
-  #    conn = get conn, time_path(conn, :show, id)
-  #    assert json_response(conn, 200)["data"]["ended_at"] == "2011-05-18T15:01:01.000000Z",
-  #  end
-  #
-  #  test "renders errors when data is invalid", %{conn: conn, time: time} do
-  #    conn = put conn, time_path(conn, :update, time), time: %{started_at: "abc"}
-  #    assert json_response(conn, 422)["errors"] != %{}
-  #  end
-  #end
+  describe "update time with a logged in user" do
+    setup [:log_user_in, :create_time]
+  
+    test "renders time when data is valid", %{conn: conn, time: %Time{id: id} = time} do
+      put_conn = put conn, time_path(conn, :update, time), time: %{ended_at: "2011-05-18T15:01:01.000000Z"}
+      assert %{"id" => ^id} = json_response(put_conn, 200)["data"]
+  
+      get_conn = get conn, time_path(conn, :show, id)
+      assert json_response(get_conn, 200)["data"]["ended_at"] == "2011-05-18T15:01:01.000000Z"
+    end
+
+    test "renders errors if the user does not own the time", %{conn: conn} do
+      time = insert(:time)
+      assert_raise Ecto.NoResultsError, fn ->
+        put conn, time_path(conn, :update, time), time: %{ended_at: "2011-05-18T15:01:01.000000Z"}
+      end
+    end
+  
+    test "renders errors when data is invalid", %{conn: conn, time: time} do
+      conn = put conn, time_path(conn, :update, time), time: %{started_at: "abc"}
+      assert json_response(conn, 422)["errors"] != %{}
+    end
+  end
 
   #describe "delete time" do
   #  setup [:create_time]
@@ -79,10 +82,11 @@ defmodule SlowmonsterWeb.TimeControllerTest do
   #  end
   #end
 
-  #defp create_time(_) do
-  #  time = fixture(:time)
-  #  {:ok, time: time}
-  #end
+  defp create_time %{user: user} do
+    {:ok, ticket: ticket} = create_ticket %{user: user}
+    time = insert(:time, ticket_id: ticket.id)
+    {:ok, time: time, ticket: ticket}
+  end
 
   defp create_ticket %{user: user} do
     ticket = insert(:ticket, user_id: user.id)

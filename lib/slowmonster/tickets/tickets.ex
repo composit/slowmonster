@@ -126,14 +126,20 @@ defmodule Slowmonster.Tickets do
 
   ## Examples
 
-      iex> get_time!(123)
+      iex> get_time!(789, 123)
       %Time{}
 
-      iex> get_time!(456)
+      iex> get_time!(789, 456)
       ** (Ecto.NoResultsError)
 
   """
-  def get_time!(id), do: Repo.get!(Time, id)
+  def get_time!(user_id, id) do
+    Repo.one!(
+      from t in Time,
+      join: ticket in assoc(t, :ticket),
+      where: t.id == ^id and ticket.user_id == ^user_id
+    )
+  end
 
   @doc """
   Creates a time.

@@ -3,8 +3,6 @@ defmodule SlowmonsterWeb.TicketControllerTest do
 
   import Slowmonster.Factory
 
-  alias Slowmonster.Tickets.Ticket
-
   setup %{conn: conn} do
     {:ok, conn: put_req_header(conn, "accept", "application/json")}
   end
@@ -110,10 +108,10 @@ defmodule SlowmonsterWeb.TicketControllerTest do
   #  assert response(conn, 401)
   #end
 
-  defp create_ticket %{user: user} do
-    ticket = insert(:ticket, user_id: user.id)
-    {:ok, ticket: ticket}
-  end
+  #defp create_ticket %{user: user} do
+  #  ticket = insert(:ticket, user_id: user.id)
+  #  {:ok, ticket: ticket}
+  #end
 
   defp log_user_in %{conn: conn} do
     user = insert(:user)

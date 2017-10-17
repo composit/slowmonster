@@ -76,9 +76,10 @@ defmodule Slowmonster.TicketsTest do
       assert Tickets.list_times() == [time]
     end
 
-    test "get_time!/1 returns the time with given id" do
-      time = insert(:time)
-      assert Tickets.get_time!(time.id) == time
+    test "get_time!/2 returns the time with given id" do
+      ticket = insert(:ticket)
+      time = insert(:time, ticket_id: ticket.id)
+      assert Tickets.get_time!(ticket.user_id, time.id) == time
     end
 
     test "create_time/1 with valid data creates a time" do
@@ -98,15 +99,17 @@ defmodule Slowmonster.TicketsTest do
     end
 
     test "update_time/2 with invalid data returns error changeset" do
-      time = insert(:time)
+      ticket = insert(:ticket)
+      time = insert(:time, ticket_id: ticket.id)
       assert {:error, %Ecto.Changeset{}} = Tickets.update_time(time, %{started_at: "abc"})
-      assert time == Tickets.get_time!(time.id)
+      assert time == Tickets.get_time!(ticket.user_id, time.id)
     end
 
     test "delete_time/1 deletes the time" do
-      time = insert(:time)
+      ticket = insert(:ticket)
+      time = insert(:time, ticket_id: ticket.id)
       assert {:ok, %Time{}} = Tickets.delete_time(time)
-      assert_raise Ecto.NoResultsError, fn -> Tickets.get_time!(time.id) end
+      assert_raise Ecto.NoResultsError, fn -> Tickets.get_time!(ticket.user_id, time.id) end
     end
 
     test "change_time/1 returns a time changeset" do

@@ -8,7 +8,7 @@ defmodule Slowmonster.Tickets.Time do
     field :broke_at, :utc_datetime
     field :ended_at, :utc_datetime
     field :started_at, :utc_datetime
-    field :ticket_id, :id
+    belongs_to :ticket, Slowmonster.Tickets.Ticket
 
     timestamps()
   end

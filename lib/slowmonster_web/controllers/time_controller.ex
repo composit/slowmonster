@@ -15,7 +15,6 @@ defmodule SlowmonsterWeb.TimeController do
 
   def create(conn, %{"time" => time_params}) do
     ticket_id = time_params["ticket_id"] || 0
-    # this will fail and return an error if the ticket doesn't exist
     Tickets.get_ticket!(conn.assigns.current_user.id, ticket_id)
 
     with {:ok, %Time{} = time} <- Tickets.create_time(time_params) do
@@ -27,17 +26,17 @@ defmodule SlowmonsterWeb.TimeController do
   end
 
   def show(conn, %{"id" => id}) do
-    time = Tickets.get_time!(id)
+    time = Tickets.get_time!(conn.assigns.current_user.id, id)
     render(conn, "show.json", time: time)
   end
 
-  #def update(conn, %{"id" => id, "time" => time_params}) do
-  #  time = Tickets.get_time!(id)
-  #
-  #  with {:ok, %Time{} = time} <- Tickets.update_time(time, time_params) do
-  #    render(conn, "show.json", time: time)
-  #  end
-  #end
+  def update(conn, %{"id" => id, "time" => time_params}) do
+    time = Tickets.get_time!(conn.assigns.current_user.id, id)
+  
+    with {:ok, %Time{} = time} <- Tickets.update_time(time, time_params) do
+      render(conn, "show.json", time: time)
+    end
+  end
 
   #def delete(conn, %{"id" => id}) do
   #  time = Tickets.get_time!(id)
