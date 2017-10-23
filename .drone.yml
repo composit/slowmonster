@@ -4,4 +4,5 @@ pipeline:
     commands:
       - mix local.hex --force
       - mix deps.get
+      - mix local.rebar --force
       - mix test
