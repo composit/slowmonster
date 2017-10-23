@@ -3,4 +3,5 @@ pipeline:
     image: elixir:1.5.1
     commands:
       - mix local.hex --force
+      - mix deps.get
       - mix test
