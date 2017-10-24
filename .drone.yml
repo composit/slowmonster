@@ -14,4 +14,4 @@ services:
   db:
     image: postgres:9.6.5
     environment:
-      POSTGRES_PASSWORD=b4o6L6ZSbUBP
+      - POSTGRES_PASSWORD=b4o6L6ZSbUBP
