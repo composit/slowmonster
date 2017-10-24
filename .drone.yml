@@ -1,8 +1,17 @@
 pipeline:
   build:
     image: elixir:1.5.1
+    links:
+      - db
     commands:
       - mix local.hex --force
       - mix deps.get
       - mix local.rebar --force
+      - mix ecto.create
+      - mix ecto.migrate
       - mix test
+services:
+  db:
+    image: postgres:9.6.5
+    environment:
+      POSTGRES_PASSWORD=b4o6L6ZSbUBP
