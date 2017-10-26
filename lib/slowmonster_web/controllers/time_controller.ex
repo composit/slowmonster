@@ -8,10 +8,10 @@ defmodule SlowmonsterWeb.TimeController do
 
   action_fallback SlowmonsterWeb.FallbackController
 
-  #def index(conn, _params) do
-  #  times = Tickets.list_times()
-  #  render(conn, "index.json", times: times)
-  #end
+  def index(conn, _params) do
+    times = Tickets.list_open_times_for_user(conn.assigns.current_user.id)
+    render(conn, "index.json", times: times)
+  end
 
   def create(conn, %{"time" => time_params}) do
     ticket_id = time_params["ticket_id"] || 0

@@ -13,7 +13,7 @@ defmodule Slowmonster.Tickets do
 
   ## Examples
 
-      iex> list_tickets_by_user(123)
+      iex> list_tickets_for_user(123)
       [%Ticket{}, ...]
 
   """
@@ -111,12 +111,34 @@ defmodule Slowmonster.Tickets do
 
   ## Examples
 
-      iex> list_times()
+      iex> list_times_for_user(user_id)
       [%Time{}, ...]
 
   """
-  def list_times do
-    Repo.all(Time)
+  def list_times_for_user(user_id) do
+    Repo.all(
+      from t in Time,
+      join: ticket in assoc(t, :ticket),
+      where: ticket.user_id == ^user_id
+    )
+  end
+
+  @doc """
+  Returns the list of times without ends.
+
+  ## Examples
+
+      iex> list_open_times_for_user(user_id)
+      [%Time{}, ...]
+
+  """
+  def list_open_times_for_user(user_id) do
+    Repo.all(
+      from t in Time,
+      join: ticket in assoc(t, :ticket),
+      where: is_nil(t.ended_at),
+      where: ticket.user_id == ^user_id
+    )
   end
 
   @doc """

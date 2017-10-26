@@ -19,7 +19,7 @@ defmodule Slowmonster.Factory do
 
   def time_factory do
     %Slowmonster.Tickets.Time{
-      started_at: "2010-04-17T14:00:00.000000Z",
+      started_at: Timex.now(),
       ticket_id: insert(:ticket).id
     }
   end

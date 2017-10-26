@@ -70,10 +70,40 @@ defmodule Slowmonster.TicketsTest do
 
   describe "times" do
     alias Slowmonster.Tickets.Time
+    setup [:create_user_and_time]
 
-    test "list_times/0 returns all times" do
-      time = insert(:time)
-      assert Tickets.list_times() == [time]
+    test "list_times_for_user/1 returns all times", %{user: user, time: time} do
+      assert Tickets.list_times_for_user(user.id) == [time]
+    end
+
+    test "list_times_for_user/1 does not return times for another user", %{user: user, ticket: ticket} do
+      other_user = insert(:user)
+      ticket
+      |> Tickets.Ticket.create_changeset(%{user_id: other_user.id})
+      |> Repo.update()
+
+      assert Tickets.list_times_for_user(user.id) == []
+    end
+
+    test "list_open_times_for_user/1 returns open times", %{user: user, time: time} do
+      assert Tickets.list_open_times_for_user(user.id) == [time]
+    end
+
+    test "list_open_times_for_user/1 does not return times for another user", %{user: user, ticket: ticket} do
+      other_user = insert(:user)
+      ticket
+      |> Tickets.Ticket.create_changeset(%{user_id: other_user.id})
+      |> Repo.update()
+
+      assert Tickets.list_open_times_for_user(user.id) == []
+    end
+
+    test "list_open_times_for_user/1 does not return times that are ended", %{user: user, time: time} do
+      time
+      |> Time.changeset(%{ended_at: Timex.now()})
+      |> Repo.update()
+
+      assert Tickets.list_open_times_for_user(user.id) == []
     end
 
     test "get_time!/2 returns the time with given id" do
@@ -117,4 +147,12 @@ defmodule Slowmonster.TicketsTest do
       assert %Ecto.Changeset{} = Tickets.change_time(time)
     end
   end
+
+  defp create_user_and_time %{} do
+    user = insert(:user)
+    ticket = insert(:ticket, user_id: user.id)
+    time = insert(:time, ticket_id: ticket.id)
+    {:ok, user: user, ticket: ticket, time: time}
+  end
 end
+
