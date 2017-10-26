@@ -12,6 +12,8 @@ defmodule SlowmonsterWeb.TimeView do
 
   def render("time.json", %{time: time}) do
     %{id: time.id,
+      ticket_id: time.ticket_id,
+      ticket_description: time.ticket.description,
       started_at: time.started_at,
       ended_at: time.ended_at,
       broke_at: time.broke_at}

@@ -1,3 +1,4 @@
+require IEx
 defmodule Slowmonster.Tickets do
   @moduledoc """
   The Tickets context.
@@ -137,7 +138,8 @@ defmodule Slowmonster.Tickets do
       from t in Time,
       join: ticket in assoc(t, :ticket),
       where: is_nil(t.ended_at),
-      where: ticket.user_id == ^user_id
+      where: ticket.user_id == ^user_id,
+      preload: [:ticket]
     )
   end
 
@@ -159,7 +161,8 @@ defmodule Slowmonster.Tickets do
     Repo.one!(
       from t in Time,
       join: ticket in assoc(t, :ticket),
-      where: t.id == ^id and ticket.user_id == ^user_id
+      where: t.id == ^id and ticket.user_id == ^user_id,
+      preload: [:ticket]
     )
   end
 
@@ -176,9 +179,15 @@ defmodule Slowmonster.Tickets do
 
   """
   def create_time(attrs \\ %{}) do
-    %Time{}
+    case %Time{}
     |> Time.create_changeset(attrs)
-    |> Repo.insert()
+    |> Repo.insert() do
+      {:ok, %Time{} = time} ->
+        time = Repo.preload(time, :ticket)
+        {:ok, time}
+      {:error, time} ->
+        {:error, time}
+    end
   end
 
   @doc """
@@ -194,9 +203,15 @@ defmodule Slowmonster.Tickets do
 
   """
   def update_time(%Time{} = time, attrs) do
-    time
+    case time
     |> Time.changeset(attrs)
-    |> Repo.update()
+    |> Repo.update() do
+      {:ok, %Time{} = updated_time} ->
+        updated_time = Repo.preload(updated_time, :ticket)
+        {:ok, updated_time}
+      {:error, updated_time} ->
+        {:error, updated_time}
+    end
   end
 
   @doc """

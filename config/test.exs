@@ -16,7 +16,8 @@ config :slowmonster, Slowmonster.Repo,
   password: "b4o6L6ZSbUBP",
   database: "slowmonster_test",
   hostname: "db",
-  pool: Ecto.Adapters.SQL.Sandbox
+  pool: Ecto.Adapters.SQL.Sandbox,
+  ownership_timeout: 100 * 60 * 1000 # so pry sessions don't break
 
 # config/test.exs
 config :comeonin, :bcrypt_log_rounds, 4

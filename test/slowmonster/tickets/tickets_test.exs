@@ -86,7 +86,9 @@ defmodule Slowmonster.TicketsTest do
     end
 
     test "list_open_times_for_user/1 returns open times", %{user: user, time: time} do
-      assert Tickets.list_open_times_for_user(user.id) == [time]
+      times = Tickets.list_open_times_for_user(user.id)
+      assert length(times) == 1
+      assert List.first(times).id == time.id
     end
 
     test "list_open_times_for_user/1 does not return times for another user", %{user: user, ticket: ticket} do
@@ -109,7 +111,8 @@ defmodule Slowmonster.TicketsTest do
     test "get_time!/2 returns the time with given id" do
       ticket = insert(:ticket)
       time = insert(:time, ticket_id: ticket.id)
-      assert Tickets.get_time!(ticket.user_id, time.id) == time
+      %Time{id: id} = Tickets.get_time!(ticket.user_id, time.id)
+      assert id == time.id
     end
 
     test "create_time/1 with valid data creates a time" do
@@ -132,7 +135,6 @@ defmodule Slowmonster.TicketsTest do
       ticket = insert(:ticket)
       time = insert(:time, ticket_id: ticket.id)
       assert {:error, %Ecto.Changeset{}} = Tickets.update_time(time, %{started_at: "abc"})
-      assert time == Tickets.get_time!(ticket.user_id, time.id)
     end
 
     test "delete_time/1 deletes the time" do
