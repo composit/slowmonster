@@ -7,6 +7,7 @@ pipeline:
       - mix local.hex --force
       - mix deps.get
       - mix local.rebar --force
+      - sleep 10
       - mix ecto.create
       - mix ecto.migrate
       - mix test
