@@ -139,6 +139,7 @@ defmodule Slowmonster.Tickets do
       join: ticket in assoc(t, :ticket),
       where: is_nil(t.ended_at),
       where: ticket.user_id == ^user_id,
+      order_by: t.started_at,
       preload: [:ticket]
     )
   end
