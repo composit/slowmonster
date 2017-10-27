@@ -1,4 +1,3 @@
-require IEx
 defmodule Slowmonster.Tickets do
   @moduledoc """
   The Tickets context.
