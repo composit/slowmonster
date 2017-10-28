@@ -21,4 +21,4 @@ COPY . /root/code
 WORKDIR /root/code
 #RUN npm install
 
-CMD ["ies", "-S", "mix", "phx.server"]
+CMD ["mix", "phx.server"]
