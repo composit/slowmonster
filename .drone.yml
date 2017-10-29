@@ -11,6 +11,17 @@ pipeline:
       - mix ecto.create
       - mix ecto.migrate
       - mix test
+  deploy:
+    image: quay.io/honestbee/drone-kubernetes
+    kubernetes_server: ${KUBERNETES_SERVER_DRUNKSHIP}
+    kubernetes_cert: ${KUBERNETES_CERT_DRUNKSHIP}
+    kubernetes_token: ${KUBERNETES_TOKEN_DRUNKSHIP}
+    deployment: slowmonster
+    repo: gcr.io/drunkship-159205/github-composit-slowmonster
+    container: slowmonster
+    namespace: drunkship
+    tag:
+      - mytag
 services:
   db:
     image: postgres:9.6.5
