@@ -17,6 +17,9 @@ RUN apt-get install -y inotify-tools
 # install rebar
 RUN mix local.rebar --force
 
+# get dependencies
+run mix deps.get
+
 COPY . /root/code
 WORKDIR /root/code
 #RUN npm install
