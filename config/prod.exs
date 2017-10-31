@@ -69,5 +69,5 @@ config :slowmonster, Slowmonster.Repo,
   password: "${DB_PASSWORD}",
   database: "${DB_NAME}",
   hostname: "${DB_HOST}",
-  port: "${DB_PORT}",
+  port: ${DB_PORT},
   pool_size: 20
