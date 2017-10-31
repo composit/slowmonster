@@ -65,9 +65,9 @@ config :logger, level: :info
 
 config :slowmonster, Slowmonster.Repo,
   adapter: Ecto.Adapters.Postgres,
-  username: "${DB_USER}",
-  password: "${DB_PASSWORD}",
-  database: "${DB_NAME}",
-  hostname: "${DB_HOST}",
-  port: Integer.parse("${DB_PORT}"),
+  username: System.get_env("DB_USER"),
+  password: System.get_env("DB_PASSWORD"),
+  database: System.get_env("DB_NAME"),
+  hostname: System.get_env("DB_HOST"),
+  port: String.to_integer(System.get_env("DB_PORT")),
   pool_size: 20
