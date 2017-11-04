@@ -242,4 +242,106 @@ defmodule Slowmonster.Tickets do
   def change_time(%Time{} = time) do
     Time.changeset(time, %{})
   end
+
+  alias Slowmonster.Tickets.Amount
+
+  #@doc """
+  #Returns the list of amounts.
+
+  ## Examples
+
+  #    iex> list_amounts()
+  #    [%Amount{}, ...]
+  #
+  #"""
+  #def list_amounts do
+  #  Repo.all(Amount)
+  #end
+
+  @doc """
+  Gets a single amount.
+
+  Raises `Ecto.NoResultsError` if the Amount does not exist.
+
+  ## Examples
+
+      iex> get_amount!(789, 123)
+      %Amount{}
+
+      iex> get_amount!(789, 456)
+      ** (Ecto.NoResultsError)
+
+  """
+  def get_amount!(user_id, id) do
+    Repo.one!(
+      from a in Amount,
+      join: ticket in assoc(a, :ticket),
+      where: a.id == ^id and ticket.user_id == ^user_id
+    )
+  end
+
+  @doc """
+  Creates a amount.
+
+  ## Examples
+
+      iex> create_amount(%{field: value})
+      {:ok, %Amount{}}
+
+      iex> create_amount(%{field: bad_value})
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def create_amount(attrs \\ %{}) do
+    %Amount{}
+    |> Amount.create_changeset(attrs)
+    |> Repo.insert()
+  end
+
+  @doc """
+  Updates a amount.
+
+  ## Examples
+
+      iex> update_amount(amount, %{field: new_value})
+      {:ok, %Amount{}}
+
+      iex> update_amount(amount, %{field: bad_value})
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def update_amount(%Amount{} = amount, attrs) do
+    amount
+    |> Amount.changeset(attrs)
+    |> Repo.update()
+  end
+
+  #@doc """
+  #Deletes a Amount.
+  #
+  ### Examples
+  #
+  #    iex> delete_amount(amount)
+  #    {:ok, %Amount{}}
+  #
+  #    iex> delete_amount(amount)
+  #    {:error, %Ecto.Changeset{}}
+  #
+  #"""
+  #def delete_amount(%Amount{} = amount) do
+  #  Repo.delete(amount)
+  #end
+
+  @doc """
+  Returns an `%Ecto.Changeset{}` for tracking amount changes.
+
+  ## Examples
+
+      iex> change_amount(amount)
+      %Ecto.Changeset{source: %Amount{}}
+
+  """
+  def change_amount(%Amount{} = amount) do
+    Amount.changeset(amount, %{})
+  end
 end

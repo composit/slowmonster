@@ -3,7 +3,6 @@ defmodule Slowmonster.Tickets.Time do
   import Ecto.Changeset
   alias Slowmonster.Tickets.Time
 
-
   schema "times" do
     field :broke_at, :utc_datetime
     field :ended_at, :utc_datetime

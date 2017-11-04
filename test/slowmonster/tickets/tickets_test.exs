@@ -156,5 +156,55 @@ defmodule Slowmonster.TicketsTest do
     time = insert(:time, ticket_id: ticket.id)
     {:ok, user: user, ticket: ticket, time: time}
   end
-end
 
+  describe "amounts" do
+    alias Slowmonster.Tickets.Amount
+
+    #test "list_amounts/0 returns all amounts" do
+    #  amount = insert(:amount)
+    #  assert Tickets.list_amounts() == [amount]
+    #end
+
+    test "get_amount!/1 returns the amount with given id" do
+      user = insert(:user)
+      ticket = insert(:ticket, user_id: user.id)
+      amount = insert(:amount, ticket_id: ticket.id)
+      assert Tickets.get_amount!(user.id, amount.id) == amount
+    end
+
+    test "create_amount/1 with valid data creates a amount" do
+      assert {:ok, %Amount{} = amount} = Tickets.create_amount(params_for(:amount))
+      assert amount.amount == 123.4
+    end
+
+    test "create_amount/1 with invalid data returns error changeset" do
+      assert {:error, %Ecto.Changeset{}} = Tickets.create_amount(%{})
+    end
+
+    test "update_amount/2 with valid data updates the amount" do
+      amount = insert(:amount)
+      assert {:ok, amount} = Tickets.update_amount(amount, %{amount: 456.7})
+      assert %Amount{} = amount
+      assert amount.amount == 456.7
+    end
+
+    test "update_amount/2 with invalid data returns error changeset" do
+      user = insert(:user)
+      ticket = insert(:ticket, user_id: user.id)
+      amount = insert(:amount, ticket_id: ticket.id)
+      assert {:error, %Ecto.Changeset{}} = Tickets.update_amount(amount, %{amount: "abc"})
+      assert amount == Tickets.get_amount!(user.id, amount.id)
+    end
+
+    #test "delete_amount/1 deletes the amount" do
+    #  amount = insert(:amount)
+    #  assert {:ok, %Amount{}} = Tickets.delete_amount(amount)
+    #  assert_raise Ecto.NoResultsError, fn -> Tickets.get_amount!(amount.id) end
+    #end
+
+    test "change_amount/1 returns a amount changeset" do
+      amount = insert(:amount)
+      assert %Ecto.Changeset{} = Tickets.change_amount(amount)
+    end
+  end
+end

@@ -1,6 +1,14 @@
 defmodule Slowmonster.Factory do
   use ExMachina.Ecto, repo: Slowmonster.Repo
 
+  def amount_factory do
+    %Slowmonster.Tickets.Amount{
+      amount: 123.4,
+      amounted_at: Timex.now(),
+      ticket_id: insert(:ticket).id
+    }
+  end
+
   def session_factory do
     %Slowmonster.Accounts.Session{
       user_id: insert(:user).id,
