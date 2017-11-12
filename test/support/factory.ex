@@ -9,6 +9,16 @@ defmodule Slowmonster.Factory do
     }
   end
 
+  def one_minute_time_factory do
+    now = Timex.now
+    %Slowmonster.Tickets.Time{
+      started_at: Timex.shift(now, minutes: -1),
+      ended_at: now,
+      seconds: 60,
+      ticket_id: insert(:ticket).id
+    }
+  end
+
   def session_factory do
     %Slowmonster.Accounts.Session{
       user_id: insert(:user).id,

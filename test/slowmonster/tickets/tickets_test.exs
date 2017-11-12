@@ -120,15 +120,25 @@ defmodule Slowmonster.TicketsTest do
       assert time.ticket_id != nil
     end
 
+    test "create_time/1 with an ended_at calculates seconds" do
+      assert {:ok, %Time{} = time} = Tickets.create_time(params_for(:time, started_at: Timex.shift(Timex.now, hours: -1), ended_at: Timex.now))
+      assert time.seconds == 3600
+    end
+
     test "create_time/1 with invalid data returns error changeset" do
       assert {:error, %Ecto.Changeset{}} = Tickets.create_time(%{})
     end
 
     test "update_time/2 with valid data updates the time" do
       time = insert(:time)
-      assert {:ok, time} = Tickets.update_time(time, %{ended_at: "2011-05-18T15:01:01.000000Z"})
-      assert %Time{} = time
+      assert {:ok, %Time{} = time} = Tickets.update_time(time, %{ended_at: "2011-05-18T15:01:01.000000Z"})
       assert time.ended_at == DateTime.from_naive!(~N[2011-05-18 15:01:01.000000Z], "Etc/UTC")
+    end
+
+    test "update_time/2 calculates seconds" do
+      time = insert(:time, started_at: Timex.shift(Timex.now, hours: -1))
+      assert {:ok, %Time{} = time} = Tickets.update_time(time, %{ended_at: Timex.now})
+      assert time.seconds == 3600
     end
 
     test "update_time/2 with invalid data returns error changeset" do

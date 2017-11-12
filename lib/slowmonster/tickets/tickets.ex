@@ -4,8 +4,8 @@ defmodule Slowmonster.Tickets do
   """
 
   import Ecto.Query, warn: false
-  alias Slowmonster.Repo
 
+  alias Slowmonster.Repo
   alias Slowmonster.Tickets.Ticket
 
   @doc """
