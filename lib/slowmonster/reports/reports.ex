@@ -72,7 +72,7 @@ defmodule Slowmonster.Reports do
     tesw = total_ended_seconds_within(user_id, ticket_ids, start_time, interval_end) || 0
     tsa = total_seconds_around(user_id, ticket_ids, start_time, interval_end, Timex.now) || 0
     totals = totals ++ [%{start_time: start_time, end_time: interval_end, total: tesw + tsa}]
-    if interval_end < end_time do
+    if DateTime.compare(interval_end, end_time) == :lt do
       interval_seconds(totals, user_id, ticket_ids, interval_end, end_time, interval)
     else
       totals
