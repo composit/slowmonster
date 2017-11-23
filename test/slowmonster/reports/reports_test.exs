@@ -5,39 +5,40 @@ defmodule Slowmonster.ReportsTest do
 
   alias Slowmonster.Reports
 
-  describe "unbounded totals" do
-    test "report returns the total number of seconds logged for tickets" do
-      user = insert(:user)
-      t1 = insert(:ticket, user_id: user.id)
-      t2 = insert(:ticket, user_id: user.id)
+  setup do
+    user = insert(:user)
+    ticket = insert(:ticket, user_id: user.id)
+    {:ok, user: user, ticket: ticket}
+  end
 
-      Enum.each([t1,t2], fn(ticket) ->
+  describe "unbounded totals" do
+    test "report returns the total number of seconds logged for tickets", %{user: user, ticket: ticket} do
+      ticket2 = insert(:ticket, user_id: user.id)
+
+      Enum.each([ticket,ticket2], fn(ticket) ->
         insert_list(3, :one_minute_time, ticket_id: ticket.id)
       end)
 
-      assert [%{total: 180}, %{total: 180}] = Reports.report %{type: "total", user_id: user.id, ticket_ids: [t1.id, t2.id]}
+      assert [%{total: 180}, %{total: 180}] = Reports.report %{type: "total", user_id: user.id, ticket_ids: [ticket.id, ticket2.id]}
     end
 
-    test "report does not return seconds for ended tickets that do not belong to the user" do
-      user = insert(:user)
-      ticket = insert(:ticket)
-      assert_raise Ecto.NoResultsError, fn -> Reports.report %{type: "total", user_id: user.id, ticket_ids: [ticket.id]} end
+    test "report does not return seconds for ended tickets that do not belong to the user", %{user: user} do
+      other_ticket = insert(:ticket)
+      assert_raise Ecto.NoResultsError, fn -> Reports.report %{type: "total", user_id: user.id, ticket_ids: [other_ticket.id]} end
     end
 
-    test "report returns the total number of seconds in open (un-ended) times" do
-      user = insert(:user)
-      ticket = insert(:ticket, user_id: user.id)
-
+    test "report returns the total number of seconds in open (un-ended) times", %{user: user, ticket: ticket} do
       insert_list(3, :time, ticket_id: ticket.id, started_at: Timex.shift(Timex.now, minutes: -1))
 
       assert [%{total: 180}] = Reports.report %{type: "total", user_id: user.id, ticket_ids: [ticket.id]}
     end
+
+    test "report returns the total amounts logged for tickets"
+    test "report does not return amounts for tickets that do not belong to the user"
   end
 
   describe "time-bounded totals" do
-    test "total_ended_seconds_within/4 returns the seconds logged within a time range" do
-      user = insert(:user)
-      ticket = insert(:ticket, user_id: user.id)
+    test "report returns the seconds logged within a time range", %{user: user, ticket: ticket} do
       end_time = Timex.beginning_of_day(Timex.now)
       # within day 2
       insert(:time, ticket_id: ticket.id, started_at: Timex.shift(end_time, days: -2, hours: 1), ended_at: Timex.shift(end_time, days: -2, hours: 2), seconds: 3600)
@@ -56,5 +57,7 @@ defmodule Slowmonster.ReportsTest do
       assert Enum.at(totals, 1).total == 10800
       assert Enum.at(totals, 2).total == 7200
     end
+
+    test "report returns the amounts logged within a time range"
   end
 end
