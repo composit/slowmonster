@@ -21,6 +21,25 @@ defmodule Slowmonster.Reports do
     end)
   end
 
+  @doc """
+  Returns the total number of seconds logged for the given tickets
+  within the specified start and end times
+  """
+  def report %{type: type, user_id: user_id, ticket_ids: ticket_ids, start_time: start_time, end_time: end_time} do
+    interval = case type do
+      "daily" ->
+        60*60*24
+      "weekly" ->
+        60*60*24*7
+    end
+
+    Enum.map(ticket_ids, fn(ticket_id) ->
+      ticket = Tickets.get_ticket!(user_id, ticket_id)
+      totals = interval_seconds([], user_id, ticket_ids, start_time, end_time, interval)
+      %{ticket: ticket, totals: totals}
+    end)
+  end
+
   defp total_ended_seconds(user_id, ticket_ids) do
     seconds = Repo.all(
       from t in Time,
@@ -45,25 +64,6 @@ defmodule Slowmonster.Reports do
 
     Enum.reduce(times, 0, fn(time, seconds) ->
       seconds + DateTime.diff(current_time, time.started_at)
-    end)
-  end
-
-  @doc """
-  Returns the total number of seconds logged for the given tickets
-  within the specified start and end times
-  """
-  def report %{type: type, user_id: user_id, ticket_ids: ticket_ids, start_time: start_time, end_time: end_time} do
-    interval = case type do
-      "daily" ->
-        60*60*24
-      "weekly" ->
-        60*60*24*7
-    end
-
-    Enum.map(ticket_ids, fn(ticket_id) ->
-      ticket = Tickets.get_ticket!(user_id, ticket_id)
-      totals = interval_seconds([], user_id, ticket_ids, start_time, end_time, interval)
-      %{ticket: ticket, totals: totals}
     end)
   end
 

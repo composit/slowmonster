@@ -34,6 +34,7 @@ defmodule Slowmonster.Mixfile do
   defp deps do
     [
       {:bcrypt_elixir, "~> 1.0.4"},
+      {:benchfella, "~> 0.3.0"},
       {:comeonin, "~> 4.0.3"},
       {:cowboy, "~> 1.0"},
       {:ex_machina, "~> 2.1", only: :test},
