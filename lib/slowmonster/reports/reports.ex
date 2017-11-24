@@ -7,7 +7,7 @@ defmodule Slowmonster.Reports do
 
   alias Slowmonster.Repo
   alias Slowmonster.Tickets
-  alias Slowmonster.Tickets.Time
+  alias Slowmonster.Tickets.{Time,Amount}
 
   @doc """
   Runs a "totals" (i.e. not time-bound) report for one or more tickets
@@ -17,7 +17,8 @@ defmodule Slowmonster.Reports do
       ticket = Tickets.get_ticket!(user_id, ticket_id)
       tes = total_ended_seconds(user_id, [ticket_id]) || 0
       tus = total_unended_seconds(user_id, [ticket_id], Timex.now) || 0
-      %{ticket: ticket, total: tes + tus}
+      tam = total_amounts(user_id, [ticket_id]) || 0
+      %{ticket: ticket, total: tes+tus+tam}
     end)
   end
 
@@ -35,52 +36,59 @@ defmodule Slowmonster.Reports do
 
     Enum.map(ticket_ids, fn(ticket_id) ->
       ticket = Tickets.get_ticket!(user_id, ticket_id)
-      totals = interval_seconds([], user_id, ticket_ids, start_time, end_time, interval)
+      totals = interval_totals([], user_id, ticket_ids, start_time, end_time, interval)
       %{ticket: ticket, totals: totals}
     end)
   end
 
   defp total_ended_seconds(user_id, ticket_ids) do
-    seconds = Repo.all(
+    Repo.all(
       from t in Time,
       join: ticket in assoc(t, :ticket),
       select: sum(t.seconds),
       where: not is_nil(t.ended_at),
       where: ticket.user_id == ^user_id,
-      where: t.ticket_id in ^ticket_ids
-    )
-
-    List.first(seconds)
+      where: t.ticket_id in ^ticket_ids)
+    |> List.first
   end
 
   defp total_unended_seconds(user_id, ticket_ids, current_time) do
-    times = Repo.all(
+    Repo.all(
       from t in Time,
       join: ticket in assoc(t, :ticket),
       where: is_nil(t.ended_at),
       where: ticket.user_id == ^user_id,
-      where: t.ticket_id in ^ticket_ids
-    )
-
-    Enum.reduce(times, 0, fn(time, seconds) ->
+      where: t.ticket_id in ^ticket_ids)
+    |> Enum.reduce(0, fn(time, seconds) ->
       seconds + DateTime.diff(current_time, time.started_at)
     end)
   end
 
-  defp interval_seconds(totals, user_id, ticket_ids, start_time, end_time, interval) do
+  defp total_amounts(user_id, ticket_ids) do
+    Repo.all(
+      from a in Amount,
+      join: ticket in assoc(a, :ticket),
+      select: sum(a.amount),
+      where: ticket.user_id == ^user_id,
+      where: a.ticket_id in ^ticket_ids)
+    |> List.first
+  end
+
+  defp interval_totals(totals, user_id, ticket_ids, start_time, end_time, interval) do
     interval_end = Timex.shift(start_time, seconds: interval)
     tesw = total_ended_seconds_within(user_id, ticket_ids, start_time, interval_end) || 0
-    tsa = total_seconds_around(user_id, ticket_ids, start_time, interval_end, Timex.now) || 0
-    totals = totals ++ [%{start_time: start_time, end_time: interval_end, total: tesw + tsa}]
+    tsa = total_seconds_around(user_id, ticket_ids, start_time, interval_end) || 0
+    taw = total_amounts_within(user_id, ticket_ids, start_time, interval_end) || 0
+    totals = totals ++ [%{start_time: start_time, end_time: interval_end, total: tesw+tsa+taw}]
     if DateTime.compare(interval_end, end_time) == :lt do
-      interval_seconds(totals, user_id, ticket_ids, interval_end, end_time, interval)
+      interval_totals(totals, user_id, ticket_ids, interval_end, end_time, interval)
     else
       totals
     end
   end
 
   defp total_ended_seconds_within(user_id, ticket_ids, start_time, end_time) do
-    seconds = Repo.all(
+    Repo.all(
       from t in Time,
       join: ticket in assoc(t, :ticket),
       select: sum(t.seconds),
@@ -88,24 +96,32 @@ defmodule Slowmonster.Reports do
       where: ticket.user_id == ^user_id,
       where: t.ticket_id in ^ticket_ids,
       where: t.started_at >= ^start_time,
-      where: t.ended_at < ^end_time
-    )
-
-    List.first(seconds)
+      where: t.ended_at < ^end_time)
+    |> List.first
   end
 
-  defp total_seconds_around(user_id, ticket_ids, start_time, end_time, current_time) do
-    times = Repo.all(
+  defp total_amounts_within(user_id, ticket_ids, start_time, end_time) do
+    Repo.all(
+      from a in Amount,
+      join: ticket in assoc(a, :ticket),
+      select: sum(a.amount),
+      where: ticket.user_id == ^user_id,
+      where: a.ticket_id in ^ticket_ids,
+      where: a.amounted_at >= ^start_time,
+      where: a.amounted_at < ^end_time)
+    |> List.first
+  end
+
+  defp total_seconds_around(user_id, ticket_ids, start_time, end_time) do
+    Repo.all(
       from t in Time,
       join: ticket in assoc(t, :ticket),
       where: ticket.user_id == ^user_id,
       where: t.ticket_id in ^ticket_ids,
       where: (t.started_at <= ^start_time and t.ended_at > ^start_time) or
              (t.started_at <= ^end_time and t.ended_at > ^end_time) or
-             (t.started_at <= ^end_time and is_nil(t.ended_at))
-    )
-
-    Enum.reduce(times, 0, fn(time, seconds) ->
+             (t.started_at <= ^end_time and is_nil(t.ended_at)))
+    |> Enum.reduce(0, fn(time, seconds) ->
       started = if time.started_at < start_time do
         start_time
       else

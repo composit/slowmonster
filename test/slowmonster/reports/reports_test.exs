@@ -33,8 +33,18 @@ defmodule Slowmonster.ReportsTest do
       assert [%{total: 180}] = Reports.report %{type: "total", user_id: user.id, ticket_ids: [ticket.id]}
     end
 
-    test "report returns the total amounts logged for tickets"
-    test "report does not return amounts for tickets that do not belong to the user"
+    test "report returns the total amounts logged for tickets", %{user: user, ticket: ticket} do
+      insert_list(3, :amount, ticket_id: ticket.id, amount: 12.3, amounted_at: Timex.now)
+
+      [%{total: total}] = Reports.report %{type: "total", user_id: user.id, ticket_ids: [ticket.id]}
+      assert Float.round(total, 1) == 36.9
+    end
+
+    test "report does not return amounts for tickets that do not belong to the user", %{user: user} do
+      ticket = insert(:ticket)
+      insert(:amount, ticket_id: ticket.id, amount: 12.3, amounted_at: Timex.now)
+      assert_raise Ecto.NoResultsError, fn -> Reports.report %{type: "total", user_id: user.id, ticket_ids: [ticket.id]} end
+    end
   end
 
   describe "time-bounded totals" do
@@ -58,6 +68,19 @@ defmodule Slowmonster.ReportsTest do
       assert Enum.at(totals, 2).total == 7200
     end
 
-    test "report returns the amounts logged within a time range"
+    test "report returns the amounts logged within a time range", %{user: user, ticket: ticket} do
+      end_time = Timex.beginning_of_day(Timex.now)
+      insert(:amount, ticket_id: ticket.id, amount: 12.3, amounted_at: Timex.shift(end_time, days: -2, hours: 1))
+      insert(:amount, ticket_id: ticket.id, amount: 23.4, amounted_at: Timex.shift(end_time, days: -2, hours: 2))
+      insert(:amount, ticket_id: ticket.id, amount: 34.5, amounted_at: Timex.shift(end_time, days: -1, hours: 1))
+
+      start_time = Timex.shift(end_time, days: -3)
+      [%{ticket: t, totals: totals}] = Reports.report %{type: "daily", user_id: user.id, ticket_ids: [ticket.id], start_time: start_time, end_time: end_time}
+      assert t.id == ticket.id
+      assert length(totals) == 3
+      assert Enum.at(totals, 0).total == 0.0
+      assert Enum.at(totals, 1).total == 35.7
+      assert Enum.at(totals, 2).total == 34.5
+    end
   end
 end

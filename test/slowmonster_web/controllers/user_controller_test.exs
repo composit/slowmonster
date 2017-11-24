@@ -3,13 +3,6 @@ defmodule SlowmonsterWeb.UserControllerTest do
 
   import Slowmonster.Factory
 
-  alias Slowmonster.Accounts
-
-  def fixture(:user) do
-    {:ok, user} = Accounts.create_user(params_for(:user))
-    user
-  end
-
   setup %{conn: conn} do
     {:ok, conn: put_req_header(conn, "accept", "application/json")}
   end
