@@ -12,16 +12,14 @@ pipeline:
       - mix ecto.migrate
       - mix test
   deploy:
-    image: quay.io/honestbee/drone-kubernetes
-    kubernetes_server: ${KUBERNETES_SERVER_DRUNKSHIP}
-    kubernetes_cert: ${KUBERNETES_CERT_DRUNKSHIP}
-    kubernetes_token: ${KUBERNETES_TOKEN_DRUNKSHIP}
-    deployment: slowmonster
-    repo: gcr.io/drunkship-159205
-    container: github-composit-slowmonster
-    namespace: drunkship
-    tag:
-      - mytag
+    image: gcr.io/drunkship-159205/kubectl:0.1
+    commands:
+      - kubectl config set-credentials default --token=${KUBERNETES_TOKEN_DRUNKSHIP}
+      - echo ${KUBERNETES_CERT_DRUNKSHIP} | base64 -d > ca.crt
+      - kubectl config set-cluster default --server=${KUBERNETES_SERVER_DRUNKSHIP} --certificate-authority=ca.crt
+      - kubectl config set-context default --cluster=default --user=default
+      - kubectl config use-context default
+      - kubectl --namespace drunkship set image deployment/slowmonster-v1 slowmonster=gcr.io/drunkship-159205/github-composit-slowmonster:${DRONE_COMMIT_SHA} --record 
 services:
   db:
     image: postgres:9.6.5
