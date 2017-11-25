@@ -12,7 +12,7 @@ pipeline:
       - mix ecto.migrate
       - mix test
   deploy:
-    image: gcr.io/drunkship-159205/kubectl:0.1
+    image: bittorrent/kubectl
     commands:
       - kubectl config set-credentials default --token=${KUBERNETES_TOKEN_DRUNKSHIP}
       - echo ${KUBERNETES_CERT_DRUNKSHIP} | base64 -d > ca.crt
