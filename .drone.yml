@@ -23,6 +23,7 @@ pipeline:
       - kubectl config set-context default --cluster=default --user=default
       - kubectl config use-context default
       - kubectl --namespace drunkship set image deployment/slowmonster-v1 slowmonster=gcr.io/drunkship-159205/github-composit-slowmonster:${DRONE_COMMIT_SHA} --record 
+    secrets: [KUBERNETES_SERVER_DRUNKSHIP, KUBERNETES_TOKEN_DRUNKSHIP, KUBERNETES_CERT_DRUNKSHIP]
 services:
   db:
     image: postgres:9.6.5
