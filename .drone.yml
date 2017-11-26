@@ -1,19 +1,22 @@
 pipeline:
-  build:
-    image: elixir:1.5.1
-    links:
-      - db
-    commands:
-      - mix local.hex --force
-      - mix deps.get
-      - mix local.rebar --force
-      - sleep 10
-      - mix ecto.create
-      - mix ecto.migrate
-      - mix test
+#  build:
+#    image: elixir:1.5.1
+#    links:
+#      - db
+#    commands:
+#      - mix local.hex --force
+#      - mix deps.get
+#      - mix local.rebar --force
+#      - sleep 10
+#      - mix ecto.create
+#      - mix ecto.migrate
+#      - mix test
   deploy:
     image: bittorrent/kubectl
     commands:
+      - echo $KUBERNETES_SERVER_DRUNKSHIP
+      - echo and
+      - echo ${KUBERNETES_SERVER_DRUNKSHIP}
       - kubectl config set-credentials default --token=${KUBERNETES_TOKEN_DRUNKSHIP}
       - echo ${KUBERNETES_CERT_DRUNKSHIP} | base64 -d > ca.crt
       - kubectl config set-cluster default --server=${KUBERNETES_SERVER_DRUNKSHIP} --certificate-authority=ca.crt
