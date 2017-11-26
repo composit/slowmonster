@@ -17,7 +17,7 @@ pipeline:
       #- echo $DRONE_COMMIT_SHA
       #- echo ${DRONE_COMMIT_SHA}
       #- echo ${{DRONE_COMMIT_SHA}}
-      - kubectl config set-credentials default --token=$KUBERNETES_TOKEN_DRUNKSHIP
+      - kubectl config set-credentials default --token=${{KUBERNETES_TOKEN_DRUNKSHIP}}
       #- echo $KUBERNETES_CERT_DRUNKSHIP | base64 -d > ca.crt
       #- kubectl config set-cluster default --server=$KUBERNETES_SERVER_DRUNKSHIP --certificate-authority=ca.crt
       #- kubectl config set-context default --cluster=default --user=default
