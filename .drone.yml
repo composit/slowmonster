@@ -12,7 +12,7 @@ pipeline:
 #      - mix ecto.migrate
 #      - mix test
   deploy:
-    image: bittorrent/kubectl
+    image: returnpath/kubectl
     commands:
       - echo $KUBERNETES_SERVER_DRUNKSHIP
       - echo ${KUBERNETES_SERVER_DRUNKSHIP}
