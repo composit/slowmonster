@@ -12,7 +12,7 @@ pipeline:
 #      - mix ecto.migrate
 #      - mix test
   deploy:
-    image: returnpath/kubectl
+    image: tpdock/docker-kubectl:v1.1.0
     commands:
       - kubectl config set-credentials default --token=$KUBERNETES_TOKEN_DRUNKSHIP
       - echo $KUBERNETES_CERT_DRUNKSHIP | base64 -d > ca.crt
