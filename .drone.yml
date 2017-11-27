@@ -33,7 +33,7 @@ pipeline:
       - gcloud auth activate-service-account $GCLOUD_EMAIL --key-file gcloud.p12
       - gcloud container clusters get-credentials $GCLOUD_CLUSTER --zone $GCLOUD_ZONE --project $GCLOUD_PROJECT
       - ssh-keygen -f ~/.ssh/google_compute_engine -N ""
-      - kubectl --insecure-skip-tls-verify --server $K8S_SERVER get pods
+      - kubectl --insecure-skip-tls-verify get deployments
       #- gcloud docker push gcr.io/$GCLOUD_PROJECT/$GCLOUD_IMAGE:$DRONE_COMMIT_SHA > /dev/null
     secrets: [k8s_server, gcloud_key, gcloud_email, gcloud_project, gcloud_image, gcloud_zone, gcloud_cluster]
 services:
