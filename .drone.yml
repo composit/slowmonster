@@ -16,18 +16,21 @@ pipeline:
     environment:
       #- CLOUDSDK_CORE_DISABLE_PROMPTS=1
       #- CLOUDSDK_PYTHON_SITEPACKAGES=1
-      - CLOUDSDK_COMPUTE_ZONE=us-central1-b
-      - CLOUDSDK_CORE_PROJECT=drunkship-159205
+      - CLOUDSDK_COMPUTE_ZONE=$GCLOUD_ZONE
+      - CLOUDSDK_CORE_PROJECT=$GCLOUD_PROJECT
     commands:
       - echo $CLOUDSDK_CORE_PROJECT
       - echo $K8S_SERVER
       - echo $GCLOUD_KEY
       - echo $GCLOUD_EMAIL
+      - echo $GCLOUD_PROJECT
+      - echo $GCLOUD_IMAGE
+      - echo $GCLOUD_ZONE
       - echo $DRONE_COMMIT_SHA
       - echo $GCLOUD_KEY | base64 --decode > gcloud.p12
       - gcloud auth activate-service-account $GCLOUD_EMAIL --key-file gcloud.p12
-      - gcloud docker push gcr.io/drunkship-159205/github-composit-slowmonster:$DRONE_COMMIT_SHA > /dev/null
-    secrets: [k8s_server, gcloud_key, gcloud_email]
+      - gcloud docker push gcr.io/$GCLOUD_PROJECT/$GCLOUD_IMAGE:$DRONE_COMMIT_SHA > /dev/null
+    secrets: [k8s_server, gcloud_key, gcloud_email, gcloud_project, gcloud_image, gcloud_zone]
 services:
   db:
     image: postgres:9.6.5
