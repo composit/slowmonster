@@ -14,6 +14,10 @@ pipeline:
   deploy:
     image: tpdock/docker-kubectl:v1.1.0
     commands:
+      - echo $K8S_SERVER
+      - echo $K8S_TOKEN
+      - echo $K8S_CRET
+      - echo $K8S_CLUSTER
       - kubectl config set-credentials default --token=$K8S_TOKEN
       - echo $K8S_CERT | base64 -d > ca.crt
       - kubectl config set-cluster default --server=$K8S_SERVER --certificate-authority=ca.crt
