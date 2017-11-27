@@ -29,7 +29,7 @@ pipeline:
         --certificate-authority=ca.crt
         --cluster=$K8S_CLUSTER
         set image deployment/slowmonster-v1 slowmonster=gcr.io/drunkship-159205/github-composit-slowmonster:$DRONE_COMMIT_SHA --record 
-    secrets: [kubernetes_server_drunkship, kubernetes_token_drunkship, kubernetes_cert_drunkship]
+    secrets: [k8s_server, k8s_token, k8s_cert, k8s_cluster]
 services:
   db:
     image: postgres:9.6.5
