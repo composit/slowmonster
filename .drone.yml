@@ -12,22 +12,6 @@ pipeline:
 #      - mix ecto.migrate
 #      - mix test
   deploy:
-#    image: tpdock/docker-kubectl:v1.1.0
-#    commands:
-#      - echo $K8S_SERVER
-#      - echo $K8S_TOKEN
-#      - echo $K8S_CERT
-#      - echo $K8S_CLUSTER
-#      #- kubectl config set-credentials default --token=$K8S_TOKEN
-#      - echo $K8S_CERT | base64 -d > ca.crt
-#      #- kubectl config set-cluster default --server=$K8S_SERVER --certificate-authority=ca.crt
-#      #- kubectl config set-context default --cluster=default --user=default
-#      #- kubectl config use-context default
-#      - kubectl --namespace drunkship
-#        --token=$K8S_TOKEN
-#        --server=$K8S_SERVER
-#        --certificate-authority=ca.crt
-#        set image deployment/slowmonster-v1 slowmonster=gcr.io/drunkship-159205/github-composit-slowmonster:$DRONE_COMMIT_SHA
 		gke:
 			image: nytimes/drone-gke
 
@@ -46,6 +30,22 @@ pipeline:
 			secrets_base64:
 				p12_cert: $$K8S_CERT
     secrets: [k8s_server, k8s_token, k8s_cert, k8s_cluster]
+#    image: tpdock/docker-kubectl:v1.1.0
+#    commands:
+#      - echo $K8S_SERVER
+#      - echo $K8S_TOKEN
+#      - echo $K8S_CERT
+#      - echo $K8S_CLUSTER
+#      #- kubectl config set-credentials default --token=$K8S_TOKEN
+#      - echo $K8S_CERT | base64 -d > ca.crt
+#      #- kubectl config set-cluster default --server=$K8S_SERVER --certificate-authority=ca.crt
+#      #- kubectl config set-context default --cluster=default --user=default
+#      #- kubectl config use-context default
+#      - kubectl --namespace drunkship
+#        --token=$K8S_TOKEN
+#        --server=$K8S_SERVER
+#        --certificate-authority=ca.crt
+#        set image deployment/slowmonster-v1 slowmonster=gcr.io/drunkship-159205/github-composit-slowmonster:$DRONE_COMMIT_SHA
 services:
   db:
     image: postgres:9.6.5
