@@ -27,8 +27,7 @@ pipeline:
       - echo $GCLOUD_KEY | base64 --decode > gcloud.p12
       - gcloud auth activate-service-account $GCLOUD_EMAIL --key-file gcloud.p12
       - gcloud docker push gcr.io/drunkship-159205/github-composit-slowmonster:$DRONE_COMMIT_SHA > /dev/null
-
-      secrets: [k8s_server, gcloud_key, gcloud_email]
+    secrets: [k8s_server, gcloud_key, gcloud_email]
 services:
   db:
     image: postgres:9.6.5
