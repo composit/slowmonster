@@ -6,6 +6,7 @@ defmodule SlowmonsterWeb.Authentication do
   def init(options), do: options
 
   def call(conn, _opts) do
+    Logger.info("logged in with auth header: "+get_req_header(conn, "authorization"))
     case find_user(conn) do
       {:ok, user} -> assign(conn, :current_user, user)
       _otherwise  -> auth_error!(conn)
