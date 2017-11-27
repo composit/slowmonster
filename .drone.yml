@@ -14,8 +14,6 @@ pipeline:
   deploy:
     image: google/cloud-sdk
     commands:
-      - export CLOUDSDK_COMPUTE_ZONE=$GCLOUD_ZONE
-      - export CLOUDSDK_CORE_PROJECT=$GCLOUD_PROJECT
       - echo $GCLOUD_KEY | base64 --decode > gcloud.p12
       - gcloud auth activate-service-account $GCLOUD_EMAIL --key-file gcloud.p12
       - gcloud container clusters get-credentials $GCLOUD_CLUSTER --zone $GCLOUD_ZONE --project $GCLOUD_PROJECT
