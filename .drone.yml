@@ -18,7 +18,8 @@ pipeline:
 			zone: us-central1-b
 			cluster: dtest1
 			namespace: drunkship
-			token: $$K8S_TOKEN
+			token: >
+				$K8S_TOKEN
 
 			vars:
 				image: gcr.io/drunkship-159205/github-composit-slowmonster:$$COMMIT
