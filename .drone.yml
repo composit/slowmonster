@@ -29,14 +29,15 @@ pipeline:
       - echo $GCLOUD_ZONE
       - echo $GCLOUD_CLUSTER
       - echo $GCLOUD_NAMESPACE
+      - echo $GCLOUD_DEPLOYMENT
       - echo $DRONE_COMMIT_SHA
       - echo $GCLOUD_KEY | base64 --decode > gcloud.p12
       - gcloud auth activate-service-account $GCLOUD_EMAIL --key-file gcloud.p12
       - gcloud container clusters get-credentials $GCLOUD_CLUSTER --zone $GCLOUD_ZONE --project $GCLOUD_PROJECT
       - ssh-keygen -f ~/.ssh/google_compute_engine -N ""
-      - kubectl --insecure-skip-tls-verify --namespace $GCLOUD_NAMESPACE get deployments
+      - kubectl --insecure-skip-tls-verify --namespace $GCLOUD_NAMESPACE set image deployment/
       #- gcloud docker push gcr.io/$GCLOUD_PROJECT/$GCLOUD_IMAGE:$DRONE_COMMIT_SHA > /dev/null
-    secrets: [k8s_server, gcloud_key, gcloud_email, gcloud_project, gcloud_image, gcloud_zone, gcloud_cluster, gcloud_namespace]
+    secrets: [k8s_server, gcloud_key, gcloud_email, gcloud_project, gcloud_image, gcloud_zone, gcloud_cluster, gcloud_namespace, gcloud_deployment]
 services:
   db:
     image: postgres:9.6.5
