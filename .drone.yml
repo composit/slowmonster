@@ -1,42 +1,26 @@
 pipeline:
-#  build:
-#    image: elixir:1.5.1
-#    links:
-#      - db
-#    commands:
-#      - mix local.hex --force
-#      - mix deps.get
-#      - mix local.rebar --force
-#      - sleep 10
-#      - mix ecto.create
-#      - mix ecto.migrate
-#      - mix test
+  build:
+    image: elixir:1.5.1
+    links:
+      - db
+    commands:
+      - mix local.hex --force
+      - mix deps.get
+      - mix local.rebar --force
+      - sleep 10
+      - mix ecto.create
+      - mix ecto.migrate
+      - mix test
   deploy:
     image: google/cloud-sdk
-    environment:
-      #- CLOUDSDK_CORE_DISABLE_PROMPTS=1
-      #- CLOUDSDK_PYTHON_SITEPACKAGES=1
     commands:
       - export CLOUDSDK_COMPUTE_ZONE=$GCLOUD_ZONE
       - export CLOUDSDK_CORE_PROJECT=$GCLOUD_PROJECT
-      - echo $CLOUDSDK_COMPUTE_ZONE
-      - echo $CLOUDSDK_CORE_PROJECT
-      - echo $K8S_SERVER
-      - echo $GCLOUD_KEY
-      - echo $GCLOUD_EMAIL
-      - echo $GCLOUD_PROJECT
-      - echo $GCLOUD_IMAGE
-      - echo $GCLOUD_ZONE
-      - echo $GCLOUD_CLUSTER
-      - echo $GCLOUD_NAMESPACE
-      - echo $GCLOUD_DEPLOYMENT
-      - echo $DRONE_COMMIT_SHA
       - echo $GCLOUD_KEY | base64 --decode > gcloud.p12
       - gcloud auth activate-service-account $GCLOUD_EMAIL --key-file gcloud.p12
       - gcloud container clusters get-credentials $GCLOUD_CLUSTER --zone $GCLOUD_ZONE --project $GCLOUD_PROJECT
       - ssh-keygen -f ~/.ssh/google_compute_engine -N ""
       - kubectl --insecure-skip-tls-verify --namespace $GCLOUD_NAMESPACE set image deployment/$GCLOUD_DEPLOYMENT slowmonster=gcr.io/$GCLOUD_PROJECT/$GCLOUD_IMAGE:$DRONE_COMMIT_SHA
-      #- gcloud docker push gcr.io/$GCLOUD_PROJECT/$GCLOUD_IMAGE:$DRONE_COMMIT_SHA > /dev/null
     secrets: [k8s_server, gcloud_key, gcloud_email, gcloud_project, gcloud_image, gcloud_zone, gcloud_cluster, gcloud_namespace, gcloud_deployment]
 services:
   db:
