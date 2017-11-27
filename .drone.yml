@@ -30,7 +30,7 @@ pipeline:
       - echo $DRONE_COMMIT_SHA
       - echo $GCLOUD_KEY | base64 --decode > gcloud.p12
       - gcloud auth activate-service-account $GCLOUD_EMAIL --key-file gcloud.p12
-      - gcloud container clusters get-credentials example-cluster
+      - gcloud container clusters get-credentials $GCLOUD_CLUSTER
       - kubectl --server $K8S_SERVER get pods
       #- gcloud docker push gcr.io/$GCLOUD_PROJECT/$GCLOUD_IMAGE:$DRONE_COMMIT_SHA > /dev/null
     secrets: [k8s_server, gcloud_key, gcloud_email, gcloud_project, gcloud_image, gcloud_zone]
