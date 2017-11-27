@@ -34,7 +34,7 @@ pipeline:
       - gcloud container clusters get-credentials $GCLOUD_CLUSTER
       - kubectl --server $K8S_SERVER get pods
       #- gcloud docker push gcr.io/$GCLOUD_PROJECT/$GCLOUD_IMAGE:$DRONE_COMMIT_SHA > /dev/null
-    secrets: [k8s_server, gcloud_key, gcloud_email, gcloud_project, gcloud_image, gcloud_zone]
+    secrets: [k8s_server, gcloud_key, gcloud_email, gcloud_project, gcloud_image, gcloud_zone, gcloud_cluster]
 services:
   db:
     image: postgres:9.6.5
