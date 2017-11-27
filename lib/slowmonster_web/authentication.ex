@@ -1,3 +1,5 @@
+require Logger
+
 defmodule SlowmonsterWeb.Authentication do
   import Plug.Conn
 
@@ -6,7 +8,6 @@ defmodule SlowmonsterWeb.Authentication do
   def init(options), do: options
 
   def call(conn, _opts) do
-    Logger.info("logged in with auth header: "+get_req_header(conn, "authorization"))
     case find_user(conn) do
       {:ok, user} -> assign(conn, :current_user, user)
       _otherwise  -> auth_error!(conn)
@@ -14,6 +15,10 @@ defmodule SlowmonsterWeb.Authentication do
   end
 
   defp find_user(conn) do
+    case get_req_header(conn, "authorization") do
+      [auth_header] -> Logger.info("logged in with auth header: " <> auth_header)
+      _otherwise    -> Logger.info("no auth header")
+    end
     with auth_header = get_req_header(conn, "authorization"),
       {:ok, token}   <- parse_token(auth_header),
       {:ok, session} <- find_session_by_token(token),
