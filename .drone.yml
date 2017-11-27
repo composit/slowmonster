@@ -27,6 +27,7 @@ pipeline:
       - echo $GCLOUD_PROJECT
       - echo $GCLOUD_IMAGE
       - echo $GCLOUD_ZONE
+      - echo $GCLOUD_CLUSTER
       - echo $DRONE_COMMIT_SHA
       - echo $GCLOUD_KEY | base64 --decode > gcloud.p12
       - gcloud auth activate-service-account $GCLOUD_EMAIL --key-file gcloud.p12
