@@ -14,13 +14,10 @@ pipeline:
   deploy:
 		gke:
 			image: nytimes/drone-gke
-
 			zone: us-central1-b
 			cluster: dtest1
 			namespace: drunkship
-			token: >
-				$K8S_TOKEN
-
+			token: $K8S_TOKEN
 			vars:
 				image: gcr.io/drunkship-159205/github-composit-slowmonster:$COMMIT
 				app: slowmonster
@@ -29,7 +26,8 @@ pipeline:
 				api_token: $K8S_TOKEN
 			secrets_base64:
 				p12_cert: $K8S_CERT
-    secrets: [k8s_server, k8s_token, k8s_cert, k8s_cluster]
+      verbose: true
+      secrets: [k8s_server, k8s_token, k8s_cert, k8s_cluster]
 #    image: tpdock/docker-kubectl:v1.1.0
 #    commands:
 #      - echo $K8S_SERVER
