@@ -15,6 +15,7 @@ defmodule SlowmonsterWeb.Authentication do
   end
 
   defp find_user(conn) do
+    Logger.info("headers " <> inspect(conn.req_headers))
     case get_req_header(conn, "authorization") do
       [auth_header] -> Logger.info("logged in with auth header: " <> auth_header)
       _otherwise    -> Logger.info("no auth header")
