@@ -1,3 +1,5 @@
+require Logger
+
 defmodule SlowmonsterWeb.Authentication do
   import Plug.Conn
 
@@ -13,6 +15,11 @@ defmodule SlowmonsterWeb.Authentication do
   end
 
   defp find_user(conn) do
+    Logger.info("headers " <> inspect(conn.req_headers))
+    case get_req_header(conn, "authorization") do
+      [auth_header] -> Logger.info("logged in with auth header: " <> auth_header)
+      _otherwise    -> Logger.info("no auth header")
+    end
     with auth_header = get_req_header(conn, "authorization"),
       {:ok, token}   <- parse_token(auth_header),
       {:ok, session} <- find_session_by_token(token),
