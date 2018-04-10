@@ -72,40 +72,49 @@ defmodule Slowmonster.TicketsTest do
     alias Slowmonster.Tickets.Time
     setup [:create_user_and_time]
 
-    test "list_times_for_user/1 returns all times", %{user: user, time: time} do
-      assert Tickets.list_times_for_user(user.id) == [time]
+    test "list_times_for_user/1 returns all times", %{user: user, ticket: ticket, time: time} do
+      assert Tickets.list_times_for_user(%{user_id: user.id, ticket_ids: [ticket.id], start_time: Timex.shift(Timex.now, hours: -1), end_time: Timex.now}) == [time]
     end
 
-    test "list_times_for_user/1 does not return times for another user", %{user: user, ticket: ticket} do
+    test "list_times_for_user/1 does not return times for another user", %{user: user, ticket: ticket, time: time} do
       other_user = insert(:user)
-      ticket
-      |> Tickets.Ticket.create_changeset(%{user_id: other_user.id})
-      |> Repo.update()
+      other_ticket = insert(:ticket, user_id: other_user.id)
+      insert(:time, ticket_id: other_ticket.id, started_at: Timex.now)
 
-      assert Tickets.list_times_for_user(user.id) == []
+      assert Tickets.list_times_for_user(%{user_id: user.id, ticket_ids: [ticket.id, other_ticket.id], start_time: Timex.shift(Timex.now, hours: -1), end_time: Timex.now}) == [time]
     end
 
-    test "list_open_times_for_user/1 returns open times", %{user: user, time: time} do
-      times = Tickets.list_open_times_for_user(user.id)
+    test "list_times_for_user/1 does not return times not associated with given ticket ids", %{user: user} do
+      other_ticket = insert(:ticket, user_id: user.id)
+
+      assert Tickets.list_times_for_user(%{user_id: user.id, ticket_ids: [other_ticket.id], start_time: Timex.shift(Timex.now, hours: -1), end_time: Timex.now}) == []
+    end
+
+    test "list_times_for_user/1 does not return times outside the time range", %{user: user, ticket: ticket} do
+      assert Tickets.list_times_for_user(%{user_id: user.id, ticket_ids: [ticket.id], start_time: Timex.shift(Timex.now, hours: -1), end_time: Timex.shift(Timex.now, minutes: -1)}) == []
+    end
+
+    test "list_times_for_user/1?open=true returns open times", %{user: user, time: time} do
+      times = Tickets.list_times_for_user(%{user_id: user.id, open: true})
       assert length(times) == 1
       assert List.first(times).id == time.id
     end
 
-    test "list_open_times_for_user/1 does not return times for another user", %{user: user, ticket: ticket} do
+    test "list_times_for_user/1?open=true does not return times for another user", %{user: user, ticket: ticket} do
       other_user = insert(:user)
       ticket
       |> Tickets.Ticket.create_changeset(%{user_id: other_user.id})
       |> Repo.update()
 
-      assert Tickets.list_open_times_for_user(user.id) == []
+      assert Tickets.list_times_for_user(%{user_id: user.id, open: true}) == []
     end
 
-    test "list_open_times_for_user/1 does not return times that are ended", %{user: user, time: time} do
+    test "list_times_for_user/1?open=true does not return times that are ended", %{user: user, time: time} do
       time
       |> Time.changeset(%{ended_at: Timex.now()})
       |> Repo.update()
 
-      assert Tickets.list_open_times_for_user(user.id) == []
+      assert Tickets.list_times_for_user(%{user_id: user.id, open: true}) == []
     end
 
     test "get_time!/2 returns the time with given id" do
@@ -163,7 +172,7 @@ defmodule Slowmonster.TicketsTest do
   defp create_user_and_time %{} do
     user = insert(:user)
     ticket = insert(:ticket, user_id: user.id)
-    time = insert(:time, ticket_id: ticket.id)
+    time = insert(:time, ticket_id: ticket.id, started_at: Timex.now)
     {:ok, user: user, ticket: ticket, time: time}
   end
 

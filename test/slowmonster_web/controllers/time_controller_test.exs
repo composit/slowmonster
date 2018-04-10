@@ -13,22 +13,22 @@ defmodule SlowmonsterWeb.TimeControllerTest do
   describe "index with a logged in user" do
     setup [:log_user_in, :create_time]
 
-    test "lists all open times", %{conn: conn} do
-      get_conn = get conn, time_path(conn, :index)
+    test "open lists all open times", %{conn: conn} do
+      get_conn = get conn, time_path(conn, :index), open: "true"
       assert Enum.count(json_response(get_conn, 200)["data"]) == 1
     end
 
-    test "does not list ended times", %{conn: conn, time: time} do
+    test "open does not list ended times", %{conn: conn, time: time} do
       Tickets.update_time(time, %{ended_at: Timex.now()})
       
-      get_conn = get conn, time_path(conn, :index)
+      get_conn = get conn, time_path(conn, :index), open: "true"
       assert Enum.count(json_response(get_conn, 200)["data"]) == 0
     end
 
-    test "does not list open times belonging to other users", %{conn: conn} do
+    test "open does not list open times belonging to other users", %{conn: conn} do
       insert(:time) # a second time record
       
-      get_conn = get conn, time_path(conn, :index)
+      get_conn = get conn, time_path(conn, :index), open: "true"
       assert Enum.count(json_response(get_conn, 200)["data"]) == 1
     end
   end

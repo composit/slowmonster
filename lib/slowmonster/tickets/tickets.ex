@@ -111,15 +111,18 @@ defmodule Slowmonster.Tickets do
 
   ## Examples
 
-      iex> list_times_for_user(user_id)
+      iex> list_times_for_user(%{user_id: 123, ticket_ids: %[1, 2, 3], start_time: 2001-02-03, end_time: 2001-02-04)
       [%Time{}, ...]
 
   """
-  def list_times_for_user(user_id) do
+  def list_times_for_user(%{user_id: user_id, ticket_ids: ticket_ids, start_time: start_time, end_time: end_time}) do
     Repo.all(
       from t in Time,
       join: ticket in assoc(t, :ticket),
-      where: ticket.user_id == ^user_id
+      where: ticket.user_id == ^user_id,
+      where: t.ticket_id in ^ticket_ids,
+      where: t.started_at >= ^start_time,
+      where: t.started_at < ^end_time
     )
   end
 
@@ -128,11 +131,11 @@ defmodule Slowmonster.Tickets do
 
   ## Examples
 
-      iex> list_open_times_for_user(user_id)
+      iex> list_times_for_user %{user_id: 123, open: true}
       [%Time{}, ...]
 
   """
-  def list_open_times_for_user(user_id) do
+  def list_times_for_user %{user_id: user_id, open: true} do
     Repo.all(
       from t in Time,
       join: ticket in assoc(t, :ticket),

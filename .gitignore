@@ -24,3 +24,6 @@ erl_crash.dump
 /priv/static/
 
 /bench/snapshots
+
+# vim swap files
+*.swp
