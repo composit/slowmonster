@@ -122,7 +122,8 @@ defmodule Slowmonster.Tickets do
       where: ticket.user_id == ^user_id,
       where: t.ticket_id in ^ticket_ids,
       where: t.started_at >= ^start_time,
-      where: t.started_at < ^end_time
+      where: t.started_at < ^end_time,
+      preload: [:ticket]
     )
   end
 

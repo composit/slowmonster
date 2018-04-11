@@ -73,7 +73,8 @@ defmodule Slowmonster.TicketsTest do
     setup [:create_user_and_time]
 
     test "list_times_for_user/1 returns all times", %{user: user, ticket: ticket, time: time} do
-      assert Tickets.list_times_for_user(%{user_id: user.id, ticket_ids: [ticket.id], start_time: Timex.shift(Timex.now, hours: -1), end_time: Timex.now}) == [time]
+      times = Tickets.list_times_for_user(%{user_id: user.id, ticket_ids: [ticket.id], start_time: Timex.shift(Timex.now, hours: -1), end_time: Timex.now})
+      assert Enum.map(times, fn(time) -> time.id end) == [time.id]
     end
 
     test "list_times_for_user/1 does not return times for another user", %{user: user, ticket: ticket, time: time} do
@@ -81,7 +82,8 @@ defmodule Slowmonster.TicketsTest do
       other_ticket = insert(:ticket, user_id: other_user.id)
       insert(:time, ticket_id: other_ticket.id, started_at: Timex.now)
 
-      assert Tickets.list_times_for_user(%{user_id: user.id, ticket_ids: [ticket.id, other_ticket.id], start_time: Timex.shift(Timex.now, hours: -1), end_time: Timex.now}) == [time]
+      times = Tickets.list_times_for_user(%{user_id: user.id, ticket_ids: [ticket.id, other_ticket.id], start_time: Timex.shift(Timex.now, hours: -1), end_time: Timex.now})
+      assert Enum.map(times, fn(time) -> time.id end) == [time.id]
     end
 
     test "list_times_for_user/1 does not return times not associated with given ticket ids", %{user: user} do
