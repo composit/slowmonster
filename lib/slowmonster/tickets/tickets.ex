@@ -320,21 +320,21 @@ defmodule Slowmonster.Tickets do
     |> Repo.update()
   end
 
-  #@doc """
-  #Deletes a Amount.
-  #
-  ### Examples
-  #
-  #    iex> delete_amount(amount)
-  #    {:ok, %Amount{}}
-  #
-  #    iex> delete_amount(amount)
-  #    {:error, %Ecto.Changeset{}}
-  #
-  #"""
-  #def delete_amount(%Amount{} = amount) do
-  #  Repo.delete(amount)
-  #end
+  @doc """
+  Deletes a Amount.
+  
+  ## Examples
+  
+      iex> delete_amount(amount)
+      {:ok, %Amount{}}
+  
+      iex> delete_amount(amount)
+      {:error, %Ecto.Changeset{}}
+  
+  """
+  def delete_amount(%Amount{} = amount) do
+    Repo.delete(amount)
+  end
 
   @doc """
   Returns an `%Ecto.Changeset{}` for tracking amount changes.

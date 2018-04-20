@@ -33,10 +33,11 @@ defmodule SlowmonsterWeb.AmountController do
     end
   end
 
-  #def delete(conn, %{"id" => id}) do
-  #  amount = Tickets.get_amount!(id)
-  #  with {:ok, %Amount{}} <- Tickets.delete_amount(amount) do
-  #    send_resp(conn, :no_content, "")
-  #  end
-  #end
+  def delete(conn, %{"id" => id}) do
+    amount = Tickets.get_amount!(conn.assigns.current_user.id, id)
+
+    with {:ok, %Amount{}} <- Tickets.delete_amount(amount) do
+      send_resp(conn, :no_content, "")
+    end
+  end
 end

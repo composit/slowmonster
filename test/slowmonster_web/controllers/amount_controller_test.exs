@@ -62,17 +62,42 @@ defmodule SlowmonsterWeb.AmountControllerTest do
     end
   end
 
-  #describe "delete amount" do
-  #  setup [:create_amount]
-  #
-  #  test "deletes chosen amount", %{conn: conn, amount: amount} do
-  #    conn = delete conn, amount_path(conn, :delete, amount)
-  #    assert response(conn, 204)
-  #    assert_error_sent 404, fn ->
-  #      get conn, amount_path(conn, :show, amount)
-  #    end
-  #  end
-  #end
+  describe "delete amount with a logged in user" do
+    setup [:log_user_in, :create_ticket, :create_amount]
+
+    test "returns ok when amount exists", %{conn: conn, amount: amount} do
+      delete_conn = delete conn, amount_path(conn, :delete, amount)
+      assert response(delete_conn, 204)
+
+      assert_raise Ecto.NoResultsError, fn ->
+        get conn, amount_path(conn, :show, amount.id)
+      end
+    end
+
+    test "renders errors when amount does not exist", %{conn: conn} do
+      amount = %Amount{id: 123}
+
+      assert_raise Ecto.NoResultsError, fn ->
+        delete conn, amount_path(conn, :delete, amount)
+      end
+    end
+
+    test "renders errors when the user does not own the ticket", %{conn: conn} do
+      amount = insert(:amount)
+
+      assert_raise Ecto.NoResultsError, fn ->
+        delete conn, amount_path(conn, :delete, amount)
+      end
+    end
+  end
+
+  test "delete amount without a logged in user returns a 401", %{conn: conn} do
+    amount = insert(:amount)
+
+    conn = delete conn, amount_path(conn, :delete, amount)
+    assert response(conn, 401)
+  end
+
 
   defp create_amount %{user: user} do
     {:ok, ticket: ticket} = create_ticket %{user: user}
