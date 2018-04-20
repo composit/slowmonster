@@ -48,12 +48,13 @@ defmodule SlowmonsterWeb.TimeController do
     end
   end
 
-  #def delete(conn, %{"id" => id}) do
-  #  time = Tickets.get_time!(id)
-  #  with {:ok, %Time{}} <- Tickets.delete_time(time) do
-  #    send_resp(conn, :no_content, "")
-  #  end
-  #end
+  def delete(conn, %{"id" => id}) do
+    time = Tickets.get_time!(conn.assigns.current_user.id, id)
+
+    with {:ok, %Time{}} <- Tickets.delete_time(time) do
+      send_resp(conn, :no_content, "")
+    end
+  end
 
   defp string_to_ids(str) do
     str

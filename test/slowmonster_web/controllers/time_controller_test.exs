@@ -91,17 +91,41 @@ defmodule SlowmonsterWeb.TimeControllerTest do
     end
   end
 
-  #describe "delete time" do
-  #  setup [:create_time]
-  #
-  #  test "deletes chosen time", %{conn: conn, time: time} do
-  #    conn = delete conn, time_path(conn, :delete, time)
-  #    assert response(conn, 204)
-  #    assert_error_sent 404, fn ->
-  #      get conn, time_path(conn, :show, time)
-  #    end
-  #  end
-  #end
+  describe "delete time with a logged in user" do
+    setup [:log_user_in, :create_ticket, :create_time]
+
+    test "returns ok when time exists", %{conn: conn, time: time} do
+      delete_conn = delete conn, time_path(conn, :delete, time)
+      assert response(delete_conn, 204)
+
+      assert_raise Ecto.NoResultsError, fn ->
+        get conn, time_path(conn, :show, time.id)
+      end
+    end
+
+    test "renders errors when time does not exist", %{conn: conn} do
+      time = %Time{id: 123}
+
+      assert_raise Ecto.NoResultsError, fn ->
+        delete conn, time_path(conn, :delete, time)
+      end
+    end
+
+    test "renders errors when the user does not own the ticket", %{conn: conn} do
+      time = insert(:time)
+
+      assert_raise Ecto.NoResultsError, fn ->
+        delete conn, time_path(conn, :delete, time)
+      end
+    end
+  end
+
+  test "delete time without a logged in user returns a 401", %{conn: conn} do
+    time = insert(:time)
+
+    conn = delete conn, time_path(conn, :delete, time)
+    assert response(conn, 401)
+  end
 
   defp create_time %{user: user} do
     {:ok, ticket: ticket} = create_ticket %{user: user}
