@@ -9,6 +9,11 @@ defmodule SlowmonsterWeb.AmountControllerTest do
     {:ok, conn: put_req_header(conn, "accept", "application/json")}
   end
 
+  test "index without a logged in user returns a 401", %{conn: conn} do
+    conn = get conn, time_path(conn, :index)
+    assert response(conn, 401)
+  end
+
   describe "create amount with logged in user" do
     setup [:log_user_in, :create_ticket]
 

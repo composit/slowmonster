@@ -12,6 +12,8 @@ defmodule SlowmonsterWeb.AmountView do
 
   def render("amount.json", %{amount: amount}) do
     %{id: amount.id,
+      ticket_id: amount.ticket_id,
+      ticket_description: amount.ticket.description,
       amount: amount.amount,
       amounted_at: amount.amounted_at}
   end

@@ -249,18 +249,26 @@ defmodule Slowmonster.Tickets do
 
   alias Slowmonster.Tickets.Amount
 
-  #@doc """
-  #Returns the list of amounts.
+  @doc """
+  Returns the list of amounts.
 
   ## Examples
 
-  #    iex> list_amounts()
-  #    [%Amount{}, ...]
-  #
-  #"""
-  #def list_amounts do
-  #  Repo.all(Amount)
-  #end
+      iex> list_amounts_for_user(%{user_id: 123, ticket_ids: %[1, 2, 3], start_time: 2001-02-03, end_time: 2001-02-04)
+      [%Time{}, ...]
+
+  """
+  def list_amounts_for_user(%{user_id: user_id, ticket_ids: ticket_ids, start_time: start_time, end_time: end_time}) do
+    Repo.all(
+      from a in Amount,
+      join: ticket in assoc(a, :ticket),
+      where: ticket.user_id == ^user_id,
+      where: a.ticket_id in ^ticket_ids,
+      where: a.amounted_at >= ^start_time,
+      where: a.amounted_at < ^end_time,
+      preload: [:ticket]
+    )
+  end
 
   @doc """
   Gets a single amount.
@@ -280,7 +288,8 @@ defmodule Slowmonster.Tickets do
     Repo.one!(
       from a in Amount,
       join: ticket in assoc(a, :ticket),
-      where: a.id == ^id and ticket.user_id == ^user_id
+      where: a.id == ^id and ticket.user_id == ^user_id,
+      preload: [:ticket]
     )
   end
 
@@ -297,9 +306,15 @@ defmodule Slowmonster.Tickets do
 
   """
   def create_amount(attrs \\ %{}) do
-    %Amount{}
+    case %Amount{}
     |> Amount.create_changeset(attrs)
-    |> Repo.insert()
+    |> Repo.insert() do
+      {:ok, %Amount{} = amount} ->
+        amount = Repo.preload(amount, :ticket)
+        {:ok, amount}
+      {:error, amount} ->
+        {:error, amount}
+    end
   end
 
   @doc """
@@ -315,9 +330,15 @@ defmodule Slowmonster.Tickets do
 
   """
   def update_amount(%Amount{} = amount, attrs) do
-    amount
+    case amount
     |> Amount.changeset(attrs)
-    |> Repo.update()
+    |> Repo.update() do
+      {:ok, %Amount{} = updated_amount} ->
+        updated_amount = Repo.preload(updated_amount, :ticket)
+        {:ok, updated_amount}
+      {:error, updated_amount} ->
+        {:error, updated_amount}
+    end
   end
 
   @doc """

@@ -8,6 +8,15 @@ defmodule SlowmonsterWeb.AmountController do
 
   action_fallback SlowmonsterWeb.FallbackController
 
+  def index(conn, %{"ticket_ids" => ticket_ids_str, "start_time" => start_time, "end_time" => end_time}) do
+    {:ok, start_time} = Timex.parse(start_time, "{RFC3339z}")
+    {:ok, end_time} = Timex.parse(end_time, "{RFC3339z}")
+
+    amounts = Tickets.list_amounts_for_user(%{user_id: conn.assigns.current_user.id, ticket_ids: string_to_ids(ticket_ids_str), start_time: start_time, end_time: end_time})
+
+    render(conn, "index.json", amounts: amounts)
+  end
+
   def create(conn, %{"amount" => amount_params}) do
     ticket_id = amount_params["ticket_id"] || 0
     Tickets.get_ticket!(conn.assigns.current_user.id, ticket_id)
@@ -39,5 +48,13 @@ defmodule SlowmonsterWeb.AmountController do
     with {:ok, %Amount{}} <- Tickets.delete_amount(amount) do
       send_resp(conn, :no_content, "")
     end
+  end
+
+  defp string_to_ids(str) do
+    str
+    |> String.split(",")
+    |> Enum.map(fn(id_str) ->
+      String.to_integer(id_str)
+    end)
   end
 end

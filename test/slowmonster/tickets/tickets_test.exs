@@ -180,17 +180,37 @@ defmodule Slowmonster.TicketsTest do
 
   describe "amounts" do
     alias Slowmonster.Tickets.Amount
+    setup [:create_user_and_amount]
 
-    #test "list_amounts/0 returns all amounts" do
-    #  amount = insert(:amount)
-    #  assert Tickets.list_amounts() == [amount]
-    #end
+    test "list_amounts_for_user/1 returns all amounts", %{user: user, ticket: ticket, amount: amount} do
+      amounts = Tickets.list_amounts_for_user(%{user_id: user.id, ticket_ids: [ticket.id], start_time: Timex.shift(Timex.now, hours: -1), end_time: Timex.now})
+      assert Enum.map(amounts, fn(amount) -> amount.id end) == [amount.id]
+    end
+
+    test "list_amounts_for_user/1 does not return amounts for another user", %{user: user, ticket: ticket, amount: amount} do
+      other_user = insert(:user)
+      other_ticket = insert(:ticket, user_id: other_user.id)
+      insert(:amount, ticket_id: other_ticket.id, amount: 123, amounted_at: Timex.now)
+
+      amounts = Tickets.list_amounts_for_user(%{user_id: user.id, ticket_ids: [ticket.id, other_ticket.id], start_time: Timex.shift(Timex.now, hours: -1), end_time: Timex.now})
+      assert Enum.map(amounts, fn(amount) -> amount.id end) == [amount.id]
+    end
+
+    test "list_amounts_for_user/1 does not return amounts not associated with given ticket ids", %{user: user} do
+      other_ticket = insert(:ticket, user_id: user.id)
+
+      assert Tickets.list_amounts_for_user(%{user_id: user.id, ticket_ids: [other_ticket.id], start_time: Timex.shift(Timex.now, hours: -1), end_time: Timex.now}) == []
+    end
+
+    test "list_amounts_for_user/1 does not return amounts outside the time range", %{user: user, ticket: ticket} do
+      assert Tickets.list_amounts_for_user(%{user_id: user.id, ticket_ids: [ticket.id], start_time: Timex.shift(Timex.now, hours: -1), end_time: Timex.shift(Timex.now, minutes: -1)}) == []
+    end
 
     test "get_amount!/1 returns the amount with given id" do
       user = insert(:user)
       ticket = insert(:ticket, user_id: user.id)
       amount = insert(:amount, ticket_id: ticket.id)
-      assert Tickets.get_amount!(user.id, amount.id) == amount
+      assert Tickets.get_amount!(user.id, amount.id).id == amount.id
     end
 
     test "create_amount/1 with valid data creates a amount" do
@@ -214,18 +234,26 @@ defmodule Slowmonster.TicketsTest do
       ticket = insert(:ticket, user_id: user.id)
       amount = insert(:amount, ticket_id: ticket.id)
       assert {:error, %Ecto.Changeset{}} = Tickets.update_amount(amount, %{amount: "abc"})
-      assert amount == Tickets.get_amount!(user.id, amount.id)
+      assert amount.amount == Tickets.get_amount!(user.id, amount.id).amount
     end
 
-    #test "delete_amount/1 deletes the amount" do
-    #  amount = insert(:amount)
-    #  assert {:ok, %Amount{}} = Tickets.delete_amount(amount)
-    #  assert_raise Ecto.NoResultsError, fn -> Tickets.get_amount!(amount.id) end
-    #end
+    test "delete_amount/1 deletes the amount" do
+      ticket = insert(:ticket)
+      amount = insert(:amount, ticket_id: ticket.id)
+      assert {:ok, %Amount{}} = Tickets.delete_amount(amount)
+      assert_raise Ecto.NoResultsError, fn -> Tickets.get_amount!(ticket.user_id, amount.id) end
+    end
 
     test "change_amount/1 returns a amount changeset" do
       amount = insert(:amount)
       assert %Ecto.Changeset{} = Tickets.change_amount(amount)
     end
+  end
+
+  defp create_user_and_amount %{} do
+    user = insert(:user)
+    ticket = insert(:ticket, user_id: user.id)
+    amount = insert(:amount, ticket_id: ticket.id, amount: 123, amounted_at: Timex.now)
+    {:ok, user: user, ticket: ticket, amount: amount}
   end
 end
