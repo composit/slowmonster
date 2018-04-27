@@ -1,8 +1,6 @@
 pipeline:
   build:
     image: elixir:1.5.1
-    links:
-      - db
     commands:
       - mix local.hex --force
       - mix deps.get
